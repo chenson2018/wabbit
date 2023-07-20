@@ -107,7 +107,7 @@
     interpreter
         .output
         .iter()
-        .map(|x| x.to_string())
+        .map(std::string::ToString::to_string)
         .collect::&lt;Vec&lt;String&gt;&gt;()
         .join(<span class="string">&quot;\n&quot;</span>)
 }
