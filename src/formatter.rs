@@ -10,7 +10,7 @@ impl Display for Stmt {
             Stmt::While {
                 condition, body, ..
             } => {
-                write!(f, "while {} {{", condition)?;
+                write!(f, "while {}{{", condition)?;
                 write!(f, "{}", body)?;
                 write!(f, "}}")
             }
@@ -26,7 +26,7 @@ impl Display for Stmt {
                 maybe_else_block,
                 ..
             } => {
-                write!(f, "if {} {{", condition)?;
+                write!(f, "if {}{{", condition)?;
                 write!(f, "{}", then_block)?;
                 write!(f, "}}")?;
                 if let Some(else_block) = maybe_else_block {
@@ -56,10 +56,10 @@ impl Display for Stmt {
                 for (i, (name, typename)) in def_params.iter().enumerate() {
                     write!(f, "{} {}", name, typename)?;
                     if i != airty - 1 {
-                        write!(f, ", ")?;
+                        write!(f, ",")?;
                     }
                 }
-                write!(f, ") {} {{", return_type)?;
+                write!(f, "){}{{", return_type)?;
                 write!(f, "{}", body)?;
                 write!(f, "}}")
             }
@@ -70,10 +70,10 @@ impl Display for Stmt {
                 ..
             } => match (maybe_type, maybe_value) {
                 (Some(typename), Some(value)) => {
-                    write!(f, "var {} {} = {};", name, typename, value)
+                    write!(f, "var {} {}={};", name, typename, value)
                 }
                 (None, Some(value)) => {
-                    write!(f, "var {} = {};", name, value)
+                    write!(f, "var {}={};", name, value)
                 }
                 (Some(typename), None) => {
                     write!(f, "var {} {};", name, typename)
@@ -87,16 +87,16 @@ impl Display for Stmt {
                 ..
             } => {
                 if let Some(typename) = maybe_type {
-                    write!(f, "const {} {} = {};", name, typename, value)
+                    write!(f, "const {} {}={};", name, typename, value)
                 } else {
-                    write!(f, "const {} = {};", name, value)
+                    write!(f, "const {}={};", name, value)
                 }
             }
             Stmt::Return { value, .. } => {
                 write!(f, "return {};", value)
             }
             Stmt::Assign { name, value, .. } => {
-                write!(f, "{} = {};", name, value)
+                write!(f, "{}={};", name, value)
             }
         }
     }
@@ -112,13 +112,13 @@ impl Display for Expr {
                 _ => write!(f, "{}", value),
             },
             Expr::Logical { lhs, op, rhs, .. } => {
-                write!(f, "{} {} {}", lhs, op, rhs)
+                write!(f, "{}{}{}", lhs, op, rhs)
             }
             Expr::Unary { op, operand, .. } => {
                 write!(f, "{}{}", op, operand)
             }
             Expr::Binary { lhs, op, rhs, .. } => {
-                write!(f, "{} {} {}", lhs, op, rhs)
+                write!(f, "{}{}{}", lhs, op, rhs)
             }
             Expr::Call { name, params, .. } => {
                 write!(f, "{}(", name)?;
@@ -128,7 +128,7 @@ impl Display for Expr {
                 for (i, e) in params.iter().enumerate() {
                     write!(f, "{}", e)?;
                     if i != airty - 1 {
-                        write!(f, ", ")?;
+                        write!(f, ",")?;
                     }
                 }
                 write!(f, ")")
