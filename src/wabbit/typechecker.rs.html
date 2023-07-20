@@ -436,8 +436,6 @@
 <a href="#436" id="436">436</a>
 <a href="#437" id="437">437</a>
 <a href="#438" id="438">438</a>
-<a href="#439" id="439">439</a>
-<a href="#440" id="440">440</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::analyzer::Analyzer;
 <span class="kw">use </span><span class="kw">crate</span>::ast::{Expr, Stmt};
 <span class="kw">use </span><span class="kw">crate</span>::environment::VarStore;
@@ -465,8 +463,8 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>typecheck_stmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stmt) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Type&gt;&gt; {
         <span class="kw">match </span>stmt {
             Stmt::Assign { name, value, id } =&gt; {
-                <span class="self">self</span>.check_constant(name, id)<span class="question-mark">?</span>;
-                <span class="self">self</span>.check_function(name, id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_constant(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_function(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span>new_type = <span class="self">self</span>.expr_type(value)<span class="question-mark">?</span>;
 
@@ -477,14 +475,14 @@
                         } <span class="kw">else </span>{
                             <span class="kw">return </span><span class="macro">msg!</span>(
                                 Msg::AssignRetype,
-                                (<span class="self">self</span>.ranges, id),
+                                (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id),
                                 name,
                                 old_type,
                                 new_type
                             );
                         }
                     }
-                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="macro">msg!</span>(Msg::AssignUndefined, (<span class="self">self</span>.ranges, id)),
+                    <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="macro">msg!</span>(Msg::AssignUndefined, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id)),
                 };
                 <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
             }
@@ -522,11 +520,11 @@
                 <span class="kw">if </span>return_types.is_empty() {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 } <span class="kw">else if </span>return_exclude_if_while.is_empty() &amp;&amp; <span class="self">self</span>.loop_depth == <span class="number">0 </span>{
-                    <span class="macro">msg!</span>(Msg::AltBranch, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::AltBranch, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 } <span class="kw">else if </span>return_types.iter().all(|item| item == <span class="kw-2">&amp;</span>return_types[<span class="number">0</span>]) {
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(return_types[<span class="number">0</span>]))
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::ReturnDiverge, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::ReturnDiverge, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
             Stmt::While {
@@ -537,7 +535,7 @@
                 <span class="kw">let </span>condition_type = <span class="self">self</span>.expr_type(condition)<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>condition_type != Type::Bool {
-                    <span class="kw">return </span><span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;bool&quot;</span>);
+                    <span class="kw">return </span><span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;bool&quot;</span>);
                 };
 
                 <span class="self">self</span>.loop_depth += <span class="number">1</span>;
@@ -546,7 +544,7 @@
                 <span class="kw">let </span>maybe_return = <span class="self">self</span>.typecheck_stmt(body)<span class="question-mark">?</span>;
 
                 <span class="self">self</span>.loop_depth -= <span class="number">1</span>;
-                <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, id))<span class="question-mark">?</span>;
+                <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))<span class="question-mark">?</span>;
 
                 <span class="prelude-val">Ok</span>(maybe_return)
             }
@@ -555,7 +553,7 @@
                 <span class="kw">if </span><span class="self">self</span>.call_depth &gt; <span class="number">0 </span>{
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">Some</span>(value_type))
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::ReturnScope, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::ReturnScope, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
             Stmt::If {
@@ -567,7 +565,7 @@
                 <span class="kw">let </span>condition_type = <span class="self">self</span>.expr_type(condition)<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>condition_type != Type::Bool {
-                    <span class="kw">return </span><span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;bool&quot;</span>);
+                    <span class="kw">return </span><span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;bool&quot;</span>);
                 };
 
                 <span class="comment">// while typechecking. we dont know which block we enter
@@ -575,19 +573,19 @@
 
                 </span><span class="self">self</span>.env.enter_child();
                 <span class="kw">let </span>maybe_then_return = <span class="self">self</span>.typecheck_stmt(then_block)<span class="question-mark">?</span>;
-                <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, id))<span class="question-mark">?</span>;
+                <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))<span class="question-mark">?</span>;
 
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(else_block) = maybe_else_block {
                     <span class="self">self</span>.env.enter_child();
                     <span class="kw">let </span>maybe_else_return = <span class="self">self</span>.typecheck_stmt(else_block)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, id))<span class="question-mark">?</span>;
+                    <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))<span class="question-mark">?</span>;
 
                     <span class="comment">// if both blocks return, check they have the same type
                     </span><span class="kw">if let </span>(<span class="prelude-val">Some</span>(then_return), <span class="prelude-val">Some</span>(else_return)) =
                         (<span class="kw-2">&amp;</span>maybe_then_return, <span class="kw-2">&amp;</span>maybe_else_return)
                     {
                         <span class="kw">if </span>then_return != else_return {
-                            <span class="kw">return </span><span class="macro">msg!</span>(Msg::ReturnDiverge, (<span class="self">self</span>.ranges, id));
+                            <span class="kw">return </span><span class="macro">msg!</span>(Msg::ReturnDiverge, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id));
                         }
                     };
                 };
@@ -602,7 +600,7 @@
                 <span class="kw">if </span><span class="self">self</span>.loop_depth &gt; <span class="number">0 </span>{
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::LoopReq, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::LoopReq, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
             Stmt::Print { value, .. } =&gt; {
@@ -615,19 +613,19 @@
                 value,
                 id,
             } =&gt; {
-                <span class="self">self</span>.check_constant(name, id)<span class="question-mark">?</span>;
-                <span class="self">self</span>.check_env(name, id)<span class="question-mark">?</span>;
-                <span class="self">self</span>.check_function(name, id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_constant(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_env(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_function(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>!<span class="self">self</span>.env.in_global_scope() {
-                    <span class="macro">msg!</span>(Msg::ConstScope, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::ConstScope, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>value_type = <span class="self">self</span>.expr_type(value)<span class="question-mark">?</span>;
                     <span class="kw">if </span>maybe_type.is_none() || (<span class="kw-2">*</span>maybe_type).unwrap() == value_type {
                         <span class="self">self</span>.constants.insert(name, value_type);
                         <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                     } <span class="kw">else </span>{
-                        <span class="macro">msg!</span>(Msg::InitType, (<span class="self">self</span>.ranges, id))
+                        <span class="macro">msg!</span>(Msg::InitType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                     }
                 }
             }
@@ -639,11 +637,11 @@
                 id,
             } =&gt; {
                 <span class="kw">if </span>!<span class="self">self</span>.env.in_global_scope() {
-                    <span class="macro">msg!</span>(Msg::FuncDefScope, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::FuncDefScope, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 } <span class="kw">else </span>{
-                    <span class="self">self</span>.check_constant(def_name, id)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.check_env(def_name, id)<span class="question-mark">?</span>;
-                    <span class="self">self</span>.check_function(def_name, id)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.check_constant(def_name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.check_env(def_name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                    <span class="self">self</span>.check_function(def_name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
 
                     <span class="kw">let </span>param_types: HashMap&lt;<span class="kw-2">&amp;</span>String, VarStore&lt;Type&gt;&gt; = def_params
                         .iter()
@@ -651,7 +649,7 @@
                         .collect();
 
                     <span class="kw">if </span>def_params.len() != param_types.len() {
-                        <span class="kw">return </span><span class="macro">msg!</span>(Msg::DupArgs, (<span class="self">self</span>.ranges, id));
+                        <span class="kw">return </span><span class="macro">msg!</span>(Msg::DupArgs, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id));
                     };
 
                     <span class="comment">// In the interpreter, these checks happen at the call time
@@ -667,7 +665,7 @@
 
                     <span class="kw">let </span>body_type = <span class="self">self</span>.typecheck_stmt(body)<span class="question-mark">?</span>;
 
-                    <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, id))<span class="question-mark">?</span>;
+                    <span class="self">self</span>.env.exit_child(<span class="kw-2">&amp;</span>(<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))<span class="question-mark">?</span>;
                     <span class="self">self</span>.call_depth -= <span class="number">1</span>;
 
                     <span class="kw">if let </span><span class="prelude-val">Some</span>(call_return) = body_type {
@@ -675,7 +673,7 @@
                             <span class="self">self</span>.functions.remove(def_name);
                             <span class="macro">msg!</span>(
                                 Msg::ReturnType,
-                                (<span class="self">self</span>.ranges, id),
+                                (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id),
                                 <span class="kw-2">&amp;</span>def_name,
                                 return_type,
                                 call_return
@@ -685,7 +683,7 @@
                         }
                     } <span class="kw">else </span>{
                         <span class="self">self</span>.functions.remove(def_name);
-                        <span class="macro">msg!</span>(Msg::NoReturn, (<span class="self">self</span>.ranges, id))
+                        <span class="macro">msg!</span>(Msg::NoReturn, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                     }
                 }
             }
@@ -695,9 +693,9 @@
                 maybe_value,
                 id,
             } =&gt; {
-                <span class="self">self</span>.check_constant(name, id)<span class="question-mark">?</span>;
-                <span class="self">self</span>.check_env(name, id)<span class="question-mark">?</span>;
-                <span class="self">self</span>.check_function(name, id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_constant(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_env(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
+                <span class="self">self</span>.check_function(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
 
                 <span class="kw">match </span>(maybe_type, maybe_value) {
                     (<span class="prelude-val">Some</span>(typename), <span class="prelude-val">Some</span>(value)) =&gt; {
@@ -707,7 +705,7 @@
                         <span class="kw">if </span>typename == <span class="kw-2">&amp;</span>value_type {
                             <span class="self">self</span>.env.define_init(name, <span class="kw-2">*</span>typename);
                         } <span class="kw">else </span>{
-                            <span class="kw">return </span><span class="macro">msg!</span>(Msg::InitType, (<span class="self">self</span>.ranges, id));
+                            <span class="kw">return </span><span class="macro">msg!</span>(Msg::InitType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id));
                         }
                     }
                     (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(value)) =&gt; {
@@ -720,7 +718,7 @@
                     (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; {
                         <span class="kw">return </span><span class="macro">msg!</span>(
                             Msg::InternalErr,
-                            (<span class="self">self</span>.ranges, id),
+                            (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id),
                             <span class="string">&quot;Parser allowed variable definition without type or initial value&quot;
                         </span>);
                     }
@@ -757,7 +755,7 @@
                     <span class="kw">if </span>def_airty != call_airty {
                         <span class="macro">msg!</span>(
                             Msg::FuncAirty,
-                            (<span class="self">self</span>.ranges, id),
+                            (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id),
                             call_name,
                             def_airty,
                             call_airty
@@ -770,7 +768,7 @@
                             <span class="kw">if </span>def_type != <span class="kw-2">&amp;</span>call_expr_type {
                                 <span class="kw">return </span><span class="macro">msg!</span>(
                                     Msg::ParamType,
-                                    (<span class="self">self</span>.ranges, id),
+                                    (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id),
                                     <span class="kw-2">&amp;</span>def_name,
                                     def_type,
                                     call_expr_type
@@ -781,7 +779,7 @@
                         <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>return_type)
                     }
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::FuncUndefined, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::FuncUndefined, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
             Expr::VarName { name, id } =&gt; {
@@ -790,28 +788,26 @@
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(VarStore::Init(var_type)) = <span class="self">self</span>.env.get(name) {
                     <span class="prelude-val">Ok</span>(var_type)
                 } <span class="kw">else if let </span><span class="prelude-val">Some</span>(VarStore::UnInit(<span class="kw">_</span>)) = <span class="self">self</span>.env.get(name) {
-                    <span class="macro">msg!</span>(Msg::AccessUninit, (<span class="self">self</span>.ranges, id), name)
+                    <span class="macro">msg!</span>(Msg::AccessUninit, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), name)
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::VarUndefined, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::VarUndefined, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
-            Expr::TypeName { id, .. } =&gt; <span class="macro">msg!</span>(Msg::TypeEval, (<span class="self">self</span>.ranges, id)),
+            Expr::TypeName { id, .. } =&gt; <span class="macro">msg!</span>(Msg::TypeEval, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id)),
             Expr::TypeConversion { dtype, params, id } =&gt; {
                 <span class="kw">if let </span>[to_convert] = params.as_slice() {
                     <span class="kw">let </span>original_type = <span class="self">self</span>.expr_type(to_convert)<span class="question-mark">?</span>;
                     <span class="kw">match </span>(dtype, original_type) {
-                        (Type::Int, Type::Char)
-                        | (Type::Int, Type::Bool)
-                        | (Type::Int, Type::Float) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
+                        (Type::Int, Type::Char | Type::Bool | Type::Float) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
                         (Type::Float, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Float),
                         (Type::Char, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Char),
                         (Type::Bool, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Bool),
                         <span class="comment">// note sure if in the spec, but this seems reasonable...
                         </span>(a, b) <span class="kw">if </span>a == <span class="kw-2">&amp;</span>b =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>a),
-                        <span class="kw">_ </span>=&gt; <span class="macro">msg!</span>(Msg::TypeConvert, (<span class="self">self</span>.ranges, id)),
+                        <span class="kw">_ </span>=&gt; <span class="macro">msg!</span>(Msg::TypeConvert, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id)),
                     }
                 } <span class="kw">else </span>{
-                    <span class="macro">msg!</span>(Msg::ConvertAirty, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::ConvertAirty, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 }
             }
 
@@ -820,14 +816,14 @@
                 <span class="kw">let </span>rhs_type = <span class="self">self</span>.expr_type(rhs)<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>lhs_type != rhs_type {
-                    <span class="macro">msg!</span>(Msg::TypeMatch, (<span class="self">self</span>.ranges, id))
+                    <span class="macro">msg!</span>(Msg::TypeMatch, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id))
                 } <span class="kw">else </span>{
                     <span class="kw">match </span>op {
                         BinaryOp::Plus | BinaryOp::Divide | BinaryOp::Times | BinaryOp::Minus =&gt; {
                             <span class="kw">if </span>[Type::Float, Type::Int].contains(<span class="kw-2">&amp;</span>lhs_type) {
                                 <span class="prelude-val">Ok</span>(lhs_type)
                             } <span class="kw">else </span>{
-                                <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;int, float&quot;</span>)
+                                <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;int, float&quot;</span>)
                             }
                         }
                         BinaryOp::Less
@@ -837,7 +833,7 @@
                             <span class="kw">if </span>[Type::Float, Type::Int, Type::Char].contains(<span class="kw-2">&amp;</span>lhs_type) {
                                 <span class="prelude-val">Ok</span>(Type::Bool)
                             } <span class="kw">else </span>{
-                                <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;int, float, char&quot;</span>)
+                                <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;int, float, char&quot;</span>)
                             }
                         }
                         BinaryOp::EqualEqual | BinaryOp::NotEqual =&gt; <span class="prelude-val">Ok</span>(Type::Bool),
@@ -850,7 +846,7 @@
                 <span class="kw">let </span>rhs_type = <span class="self">self</span>.expr_type(rhs)<span class="question-mark">?</span>;
 
                 <span class="kw">if </span>lhs_type != Type::Bool || rhs_type != Type::Bool {
-                    <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;bool&quot;</span>)
+                    <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;bool&quot;</span>)
                 } <span class="kw">else </span>{
                     <span class="prelude-val">Ok</span>(Type::Bool)
                 }
@@ -862,14 +858,14 @@
                         <span class="kw">if </span>operand_type == Type::Bool {
                             <span class="prelude-val">Ok</span>(Type::Bool)
                         } <span class="kw">else </span>{
-                            <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;bool&quot;</span>)
+                            <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;bool&quot;</span>)
                         }
                     }
                     UnaryOp::Plus | UnaryOp::Minus =&gt; {
                         <span class="kw">if </span>[Type::Float, Type::Int].contains(<span class="kw-2">&amp;</span>operand_type) {
                             <span class="prelude-val">Ok</span>(operand_type)
                         } <span class="kw">else </span>{
-                            <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, id), <span class="string">&quot;int, float&quot;</span>)
+                            <span class="macro">msg!</span>(Msg::ExpectType, (<span class="self">self</span>.ranges, <span class="kw-2">*</span>id), <span class="string">&quot;int, float&quot;</span>)
                         }
                     }
                 }

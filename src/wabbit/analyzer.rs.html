@@ -131,7 +131,7 @@
 
 <span class="doccomment">/// this implementation allows reporting errors from any type that stores a map from expressions/statemts to source indices
 
-</span><span class="kw">impl </span>RangeReporter <span class="kw">for </span>(<span class="kw-2">&amp;</span>HashMap&lt;usize, (usize, usize)&gt;, <span class="kw-2">&amp;</span>usize) {
+</span><span class="kw">impl </span>RangeReporter <span class="kw">for </span>(<span class="kw-2">&amp;</span>HashMap&lt;usize, (usize, usize)&gt;, usize) {
     <span class="kw">fn </span>extract_tokens&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="self">self</span>, _output: <span class="kw-2">&amp;mut </span>Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw">crate</span>::tokens::Token&gt;) {}
 
     <span class="kw">fn </span>extract_range(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (usize, usize) {
@@ -161,7 +161,7 @@
     }
 
     <span class="doccomment">/// check if a name is already used by a variable name in the current scope
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_env(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: <span class="kw-2">&amp;</span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_env(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.env.top_contains(name) {
             <span class="macro">msg!</span>(Msg::RedeclareVar, (<span class="self">self</span>.ranges, id), name)
         } <span class="kw">else </span>{
@@ -170,7 +170,7 @@
     }
 
     <span class="doccomment">/// check if a name is already used by a constant
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_constant(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: <span class="kw-2">&amp;</span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_constant(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.constants.contains_key(name) {
             <span class="macro">msg!</span>(Msg::RedeclareConst, (<span class="self">self</span>.ranges, id), name)
         } <span class="kw">else </span>{
@@ -179,7 +179,7 @@
     }
 
     <span class="doccomment">/// check if a name is already used by a function
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: <span class="kw-2">&amp;</span>usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>check_function(<span class="kw-2">&amp;</span><span class="self">self</span>, name: <span class="kw-2">&amp;</span>String, id: usize) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">if </span><span class="self">self</span>.functions.contains_key(name) {
             <span class="macro">msg!</span>(Msg::RedeclareFunc, (<span class="self">self</span>.ranges, id), name)
         } <span class="kw">else </span>{

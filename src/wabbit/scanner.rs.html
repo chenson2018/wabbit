@@ -500,10 +500,10 @@
                     <span class="self">self</span>.add_literal_token(TokenType::False, WabbitType::Bool(<span class="bool-val">false</span>));
                 }
                 TokenType::True =&gt; <span class="self">self</span>.add_literal_token(TokenType::True, WabbitType::Bool(<span class="bool-val">true</span>)),
-                <span class="kw">_ </span>=&gt; <span class="self">self</span>.add_token(keyword_tt.clone()),
+                <span class="kw">_ </span>=&gt; <span class="self">self</span>.add_token(<span class="kw-2">*</span>keyword_tt),
             }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(type_tt) = TYPES.get(<span class="kw-2">&amp;</span>lexeme) {
-            <span class="self">self</span>.add_token(type_tt.clone());
+            <span class="self">self</span>.add_token(<span class="kw-2">*</span>type_tt);
         } <span class="kw">else </span>{
             <span class="self">self</span>.add_token(TokenType::Name);
         };
@@ -553,14 +553,14 @@
         </span><span class="kw">if </span><span class="self">self</span>.is_end() {
             <span class="self">self</span>.add_token(TokenType::Eof);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(single_tt) = TOKENS_SINGLE.get(<span class="kw-2">&amp;</span>c) {
-            <span class="self">self</span>.add_token(single_tt.clone());
+            <span class="self">self</span>.add_token(<span class="kw-2">*</span>single_tt);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>((next_for_double, maybe_single, double_tt)) = TOKENS_DOUBLE.get(<span class="kw-2">&amp;</span>c) {
             <span class="comment">// checking for pairs of chars that make a token
             </span><span class="kw">if </span><span class="self">self</span>.peek() == <span class="kw-2">*</span>next_for_double {
                 <span class="self">self</span>.advance();
-                <span class="self">self</span>.add_token(double_tt.clone());
+                <span class="self">self</span>.add_token(<span class="kw-2">*</span>double_tt);
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(single_tt) = maybe_single {
-                <span class="self">self</span>.add_token(single_tt.clone());
+                <span class="self">self</span>.add_token(<span class="kw-2">*</span>single_tt);
             } <span class="kw">else </span>{
                 failed = <span class="bool-val">true</span>;
                 <span class="kw">let </span>err = <span class="macro">err!</span>(Msg::DoubleToken, <span class="self">self</span>, c, next_for_double);

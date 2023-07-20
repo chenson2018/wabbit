@@ -600,6 +600,7 @@
 <a href="#600" id="600">600</a>
 <a href="#601" id="601">601</a>
 <a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ast::{Expr, Stmt};
 <span class="kw">use </span><span class="kw">crate</span>::error::{msg, Msg, RangeReporter, <span class="prelude-ty">Result</span>};
 <span class="kw">use </span><span class="kw">crate</span>::scanner::Scanner;
@@ -1174,13 +1175,14 @@
         ]) {
             <span class="kw">let </span>token = <span class="self">self</span>.previous();
             <span class="kw">let </span>id = <span class="self">self</span>.assign_id_single(<span class="kw-2">&amp;</span>token);
-            <span class="kw">match </span>token.literal {
-                <span class="prelude-val">Some</span>(value) =&gt; <span class="prelude-val">Ok</span>(Expr::Literal { value, id }),
-                <span class="prelude-val">None </span>=&gt; <span class="macro">msg!</span>(
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(value) = token.literal {
+                <span class="prelude-val">Ok</span>(Expr::Literal { value, id })
+            } <span class="kw">else </span>{
+                <span class="macro">msg!</span>(
                     Msg::InternalErr,
                     <span class="kw-2">&amp;</span>token,
                     <span class="string">&quot;Scanner created a literal without a value.&quot;
-                </span>),
+                </span>)
             }
         } <span class="kw">else if let </span><span class="prelude-val">Ok</span>((token, dtype)) = <span class="self">self</span>.get_type() {
             <span class="kw">let </span>id = <span class="self">self</span>.assign_id_single(<span class="kw-2">&amp;</span>token);
