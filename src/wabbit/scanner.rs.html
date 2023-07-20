@@ -497,15 +497,15 @@
         <span class="kw">if let </span><span class="prelude-val">Some</span>(keyword_tt) = KEYWORDS.get(<span class="kw-2">&amp;</span>lexeme) {
             <span class="kw">match </span>keyword_tt {
                 TokenType::False =&gt; {
-                    <span class="self">self</span>.add_literal_token(TokenType::False, WabbitType::Bool(<span class="bool-val">false</span>))
+                    <span class="self">self</span>.add_literal_token(TokenType::False, WabbitType::Bool(<span class="bool-val">false</span>));
                 }
                 TokenType::True =&gt; <span class="self">self</span>.add_literal_token(TokenType::True, WabbitType::Bool(<span class="bool-val">true</span>)),
                 <span class="kw">_ </span>=&gt; <span class="self">self</span>.add_token(keyword_tt.clone()),
             }
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(type_tt) = TYPES.get(<span class="kw-2">&amp;</span>lexeme) {
-            <span class="self">self</span>.add_token(type_tt.clone())
+            <span class="self">self</span>.add_token(type_tt.clone());
         } <span class="kw">else </span>{
-            <span class="self">self</span>.add_token(TokenType::Name)
+            <span class="self">self</span>.add_token(TokenType::Name);
         };
     }
 
@@ -551,16 +551,16 @@
         <span class="comment">// NOTE I assume unix line endings
 
         </span><span class="kw">if </span><span class="self">self</span>.is_end() {
-            <span class="self">self</span>.add_token(TokenType::Eof)
+            <span class="self">self</span>.add_token(TokenType::Eof);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(single_tt) = TOKENS_SINGLE.get(<span class="kw-2">&amp;</span>c) {
-            <span class="self">self</span>.add_token(single_tt.clone())
+            <span class="self">self</span>.add_token(single_tt.clone());
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>((next_for_double, maybe_single, double_tt)) = TOKENS_DOUBLE.get(<span class="kw-2">&amp;</span>c) {
             <span class="comment">// checking for pairs of chars that make a token
             </span><span class="kw">if </span><span class="self">self</span>.peek() == <span class="kw-2">*</span>next_for_double {
                 <span class="self">self</span>.advance();
-                <span class="self">self</span>.add_token(double_tt.clone())
+                <span class="self">self</span>.add_token(double_tt.clone());
             } <span class="kw">else if let </span><span class="prelude-val">Some</span>(single_tt) = maybe_single {
-                <span class="self">self</span>.add_token(single_tt.clone())
+                <span class="self">self</span>.add_token(single_tt.clone());
             } <span class="kw">else </span>{
                 failed = <span class="bool-val">true</span>;
                 <span class="kw">let </span>err = <span class="macro">err!</span>(Msg::DoubleToken, <span class="self">self</span>, c, next_for_double);
@@ -583,7 +583,7 @@
                             }
                         }
                     } <span class="kw">else </span>{
-                        <span class="self">self</span>.add_token(TokenType::Divide)
+                        <span class="self">self</span>.add_token(TokenType::Divide);
                     }
                 }
                 <span class="string">&#39;\n&#39; </span>=&gt; {
@@ -600,9 +600,9 @@
 
                     <span class="kw">if </span>(one, two, three) == (<span class="string">&#39;\\&#39;</span>, <span class="string">&#39;n&#39;</span>, <span class="string">&#39;\&#39;&#39;</span>) {
                         <span class="self">self</span>.advance();
-                        <span class="self">self</span>.add_literal_token(TokenType::Char, WabbitType::Char(<span class="string">&#39;\n&#39;</span>))
+                        <span class="self">self</span>.add_literal_token(TokenType::Char, WabbitType::Char(<span class="string">&#39;\n&#39;</span>));
                     } <span class="kw">else if </span>two == <span class="string">&#39;\&#39;&#39; </span>{
-                        <span class="self">self</span>.add_literal_token(TokenType::Char, WabbitType::Char(one))
+                        <span class="self">self</span>.add_literal_token(TokenType::Char, WabbitType::Char(one));
                     } <span class="kw">else </span>{
                         failed = <span class="bool-val">true</span>;
                         <span class="kw">let </span>err = <span class="macro">err!</span>(Msg::InvalidChar, <span class="self">self</span>);
@@ -615,7 +615,7 @@
                 </span><span class="kw">_ </span>=&gt; {
                     <span class="comment">// check for an identifier first
                     </span><span class="kw">if </span>c.is_alphabetic() || c == <span class="string">&#39;_&#39; </span>{
-                        <span class="self">self</span>.identifier()
+                        <span class="self">self</span>.identifier();
                     } <span class="kw">else if </span>c.is_ascii_digit() || c == <span class="string">&#39;.&#39; </span>{
                         <span class="kw">if let </span><span class="prelude-val">Err</span>(e) = <span class="self">self</span>.number(c == <span class="string">&#39;.&#39;</span>) {
                             errors.push(e);

@@ -202,9 +202,9 @@
     <span class="comment">// up to the caller to determine that we&#39;re not changing types!
     </span><span class="kw">pub fn </span>assign(<span class="kw-2">&amp;mut </span><span class="self">self</span>, name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>String, value: T) {
         <span class="kw">if </span><span class="self">self</span>.values.contains_key(<span class="kw-2">&amp;</span>name) {
-            <span class="self">self</span>.define_init(name, value)
+            <span class="self">self</span>.define_init(name, value);
         } <span class="kw">else if let </span><span class="prelude-val">Some</span>(<span class="kw-2">ref mut </span>parent) = <span class="self">self</span>.parent {
-            parent.assign(name, value)
+            parent.assign(name, value);
         }
     }
 

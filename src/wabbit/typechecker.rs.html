@@ -514,7 +514,7 @@
                                 <span class="kw">let </span>ret_else = <span class="self">self</span>.typecheck_stmt(else_block).unwrap();
 
                                 <span class="kw">if </span><span class="macro">matches!</span>((ret_then, ret_else), (<span class="prelude-val">Some</span>(<span class="kw">_</span>), <span class="prelude-val">Some</span>(<span class="kw">_</span>))) {
-                                    return_exclude_if_while.push(ret_type)
+                                    return_exclude_if_while.push(ret_type);
                                 };
                             }
                             <span class="kw">_ </span>=&gt; return_exclude_if_while.push(ret_type),
