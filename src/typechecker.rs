@@ -20,7 +20,7 @@ impl<'a> Typechecker<'a> {
     }
 
     /// typecheck a single statement
-    pub(crate) fn typecheck_stmt(&mut self, stmt: &'a Stmt) -> Result<Option<Type>> {
+    pub fn typecheck_stmt(&mut self, stmt: &'a Stmt) -> Result<Option<Type>> {
         match stmt {
             Stmt::Assign { name, value, id } => {
                 self.check_constant(name, *id)?;
@@ -293,7 +293,7 @@ impl<'a> Typechecker<'a> {
     }
 
     /// typecheck a single expression
-    pub(crate) fn expr_type(&mut self, e: &Expr) -> Result<Type> {
+    pub fn expr_type(&mut self, e: &Expr) -> Result<Type> {
         match e {
             Expr::Call {
                 name: call_name,
