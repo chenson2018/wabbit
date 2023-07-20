@@ -11,35 +11,39 @@ use wabbit::parser::Parser;
 use wabbit::scanner::Scanner;
 use wabbit::typechecker::Typechecker;
 
+/// command-line options
+
 #[derive(CliParser, Debug)]
-struct Cli {
-    /// Option to print Tokens
+pub struct Cli {
+    /// option to print tokens
     #[arg(short, long)]
     tokens: bool,
 
-    /// Option to print AST
+    /// option to print AST
     #[arg(short, long)]
     ast: bool,
 
-    /// Option to print formatted code
+    /// option to print minimized code
     #[arg(short, long)]
-    format: bool,
+    minimize: bool,
 
-    /// Option to skip typechecking
+    /// option to skip typechecking
     #[arg(long)]
     skip_typecheck: bool,
 
+    /// option to print LLVM IR
     #[arg(long)]
     llvm_print: bool,
 
+    /// option to compile and execute LLVM IR (using clang)
     #[arg(long)]
     llvm_exec: bool,
 
-    /// Option to use interpreter
+    /// option to use interpreter
     #[arg(short, long)]
     interpret: bool,
 
-    /// Path to Wabbit Program
+    /// path to Wabbit program
     path: PathBuf,
 }
 
@@ -72,7 +76,7 @@ fn main() -> Result<(), MainError> {
         println!("Statements: \n\n{:#?}", parser.borrow_statements());
     }
 
-    if args.format {
+    if args.minimize {
         for stmt in parser.borrow_statements() {
             println!("{}", stmt);
         }

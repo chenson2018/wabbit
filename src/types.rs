@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+/// Wabbit data types
+
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum Type {
     Int,
@@ -18,6 +20,8 @@ impl Display for Type {
         }
     }
 }
+
+/// a Wabbit value, including Wabbit types
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum WabbitType {

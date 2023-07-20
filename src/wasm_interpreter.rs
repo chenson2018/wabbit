@@ -5,13 +5,18 @@ use crate::parser::Parser;
 use crate::scanner::Scanner;
 use crate::typechecker::Typechecker;
 
-// Called when the wasm module is instantiated
-// Nothing here because I defined things in the HTML instead
+/// entry point for WebAssembly interpreter
+///
+/// to view in your browser, run `wasm-pack build --target web` and then open [index.html](https://github.com/chenson2018/wabbit/blob/main/index.html)
 #[wasm_bindgen(start)]
 pub fn wasm_entry() -> Result<(), JsValue> {
     Ok(())
 }
 
+/// a Wabbit interpreter, exported to WebAssembly
+///
+/// note that this is the entire Rust implementation of the scanner, parser and interpreter, not a
+/// use of WebAssembly as a compilation target
 #[wasm_bindgen]
 pub fn wasm_interp(source: &str) -> String {
     let mut scanner = Scanner::new(source.to_string());

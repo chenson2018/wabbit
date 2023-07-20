@@ -14,7 +14,7 @@ jobs:
       - run: cargo clippy -- -Dclippy::all
       - run: cargo fmt --all -- --check
       - run: cargo test
-      - run: cargo doc --no-deps --document-private-items
+      - run: cargo doc --no-deps --document-private-items --bins --lib
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
