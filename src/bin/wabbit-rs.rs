@@ -7,7 +7,7 @@ use main_error::MainError;
 use wabbit::{CodegenLLVM, Interpreter, Parser, Scanner, Typechecker, WabbitErrorReporter};
 
 /// command-line options
-
+#[allow(clippy::struct_excessive_bools)]
 #[derive(CliParser, Debug)]
 pub struct Cli {
     /// option to print tokens

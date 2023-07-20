@@ -11,6 +11,20 @@
 #![feature(box_syntax)]
 #![feature(box_patterns)]
 #![feature(let_chains)]
+// roughly grouped by category
+#![allow(clippy::similar_names)]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::return_self_not_must_use)]
+#![allow(clippy::must_use_candidate)]
+#![allow(clippy::missing_panics_doc)]
+#![allow(clippy::missing_errors_doc)]
+#![allow(clippy::implicit_hasher)]
+#![allow(clippy::if_not_else)]
+#![allow(clippy::too_many_lines)]
+#![allow(clippy::float_cmp)]
+#![allow(clippy::cast_lossless)]
+#![allow(clippy::cast_sign_loss)]
+#![allow(clippy::cast_possible_truncation)]
 
 /// typecheck or interpret Wabbit AST
 pub mod analyzer;
