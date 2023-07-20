@@ -103,8 +103,14 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::types::Type;
-<span class="kw">use crate</span>::{operators::<span class="kw-2">*</span>, WabbitType};
+<span class="kw">use crate</span>::{
+    operators::{BinaryOp, LogicalOp, LoopControl, UnaryOp},
+    WabbitType,
+};
 
 <span class="attr">#[derive(Debug, Clone, PartialEq)]
 </span><span class="kw">pub enum </span>Stmt {
