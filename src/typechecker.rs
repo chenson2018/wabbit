@@ -2,7 +2,7 @@ use crate::analyzer::Analyzer;
 use crate::ast::{Expr, Stmt};
 use crate::environment::VarStore;
 use crate::error::{msg, Msg, RangeReporter, Result};
-use crate::operators::*;
+use crate::operators::{BinaryOp, LoopControl, UnaryOp};
 use crate::types::Type;
 use std::collections::HashMap;
 

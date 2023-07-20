@@ -1,5 +1,5 @@
 use crate::ast::{Expr, Stmt};
-use crate::operators::*;
+use crate::operators::{BinaryOp, LogicalOp, LoopControl, UnaryOp};
 use crate::WabbitType;
 use std::fmt::Display;
 

@@ -1,5 +1,8 @@
 use crate::types::Type;
-use crate::{operators::*, WabbitType};
+use crate::{
+    operators::{BinaryOp, LogicalOp, LoopControl, UnaryOp},
+    WabbitType,
+};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Stmt {
