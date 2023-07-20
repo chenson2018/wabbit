@@ -168,15 +168,15 @@ impl Scanner {
         if let Some(keyword_tt) = KEYWORDS.get(&lexeme) {
             match keyword_tt {
                 TokenType::False => {
-                    self.add_literal_token(TokenType::False, WabbitType::Bool(false))
+                    self.add_literal_token(TokenType::False, WabbitType::Bool(false));
                 }
                 TokenType::True => self.add_literal_token(TokenType::True, WabbitType::Bool(true)),
                 _ => self.add_token(keyword_tt.clone()),
             }
         } else if let Some(type_tt) = TYPES.get(&lexeme) {
-            self.add_token(type_tt.clone())
+            self.add_token(type_tt.clone());
         } else {
-            self.add_token(TokenType::Name)
+            self.add_token(TokenType::Name);
         };
     }
 
@@ -222,16 +222,16 @@ impl Scanner {
         // NOTE I assume unix line endings
 
         if self.is_end() {
-            self.add_token(TokenType::Eof)
+            self.add_token(TokenType::Eof);
         } else if let Some(single_tt) = TOKENS_SINGLE.get(&c) {
-            self.add_token(single_tt.clone())
+            self.add_token(single_tt.clone());
         } else if let Some((next_for_double, maybe_single, double_tt)) = TOKENS_DOUBLE.get(&c) {
             // checking for pairs of chars that make a token
             if self.peek() == *next_for_double {
                 self.advance();
-                self.add_token(double_tt.clone())
+                self.add_token(double_tt.clone());
             } else if let Some(single_tt) = maybe_single {
-                self.add_token(single_tt.clone())
+                self.add_token(single_tt.clone());
             } else {
                 failed = true;
                 let err = err!(Msg::DoubleToken, self, c, next_for_double);
@@ -254,7 +254,7 @@ impl Scanner {
                             }
                         }
                     } else {
-                        self.add_token(TokenType::Divide)
+                        self.add_token(TokenType::Divide);
                     }
                 }
                 '\n' => {
@@ -271,9 +271,9 @@ impl Scanner {
 
                     if (one, two, three) == ('\\', 'n', '\'') {
                         self.advance();
-                        self.add_literal_token(TokenType::Char, WabbitType::Char('\n'))
+                        self.add_literal_token(TokenType::Char, WabbitType::Char('\n'));
                     } else if two == '\'' {
-                        self.add_literal_token(TokenType::Char, WabbitType::Char(one))
+                        self.add_literal_token(TokenType::Char, WabbitType::Char(one));
                     } else {
                         failed = true;
                         let err = err!(Msg::InvalidChar, self);
@@ -286,7 +286,7 @@ impl Scanner {
                 _ => {
                     // check for an identifier first
                     if c.is_alphabetic() || c == '_' {
-                        self.identifier()
+                        self.identifier();
                     } else if c.is_ascii_digit() || c == '.' {
                         if let Err(e) = self.number(c == '.') {
                             errors.push(e);

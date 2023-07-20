@@ -45,12 +45,12 @@ mod test {
 
     #[test]
     fn vardef_empty() {
-        expect_err("var x;\n", Msg::VarDefEmpty)
+        expect_err("var x;\n", Msg::VarDefEmpty);
     }
 
     #[test]
     fn expect_expr() {
-        expect_err("print;\n", Msg::ExpectExpr)
+        expect_err("print;\n", Msg::ExpectExpr);
     }
 
     #[test]
@@ -67,7 +67,7 @@ mod test {
 
     #[test]
     fn expect_varname() {
-        expect_err("var int x = 1;\n", Msg::ExpectVarName)
+        expect_err("var int x = 1;\n", Msg::ExpectVarName);
     }
 
     // This one is very general...

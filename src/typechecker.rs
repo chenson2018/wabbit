@@ -71,7 +71,7 @@ impl<'a> Analyzer<'a, Type> {
                                 let ret_else = self.typecheck_stmt(else_block).unwrap();
 
                                 if matches!((ret_then, ret_else), (Some(_), Some(_))) {
-                                    return_exclude_if_while.push(ret_type)
+                                    return_exclude_if_while.push(ret_type);
                                 };
                             }
                             _ => return_exclude_if_while.push(ret_type),

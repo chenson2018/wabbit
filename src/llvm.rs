@@ -622,7 +622,7 @@ impl<'a> CodegenLLVM<'a> {
                 let param_type = self.analyze.expr_type(&params[0]).unwrap();
 
                 if dtype == &param_type {
-                    tmp_name = param_compile
+                    tmp_name = param_compile;
                 } else {
                     let ins = match (dtype, param_type) {
                         (Type::Int, Type::Char) => {

@@ -89,9 +89,9 @@ where
     // up to the caller to determine that we're not changing types!
     pub fn assign(&mut self, name: &'a String, value: T) {
         if self.values.contains_key(&name) {
-            self.define_init(name, value)
+            self.define_init(name, value);
         } else if let Some(ref mut parent) = self.parent {
-            parent.assign(name, value)
+            parent.assign(name, value);
         }
     }
 
