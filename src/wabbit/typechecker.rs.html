@@ -456,7 +456,7 @@
     }
 
     <span class="doccomment">/// typecheck a single statement
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>typecheck_stmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stmt) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Type&gt;&gt; {
+    </span><span class="kw">pub fn </span>typecheck_stmt(<span class="kw-2">&amp;mut </span><span class="self">self</span>, stmt: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>Stmt) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="prelude-ty">Option</span>&lt;Type&gt;&gt; {
         <span class="kw">match </span>stmt {
             Stmt::Assign { name, value, id } =&gt; {
                 <span class="self">self</span>.check_constant(name, <span class="kw-2">*</span>id)<span class="question-mark">?</span>;
@@ -729,7 +729,7 @@
     }
 
     <span class="doccomment">/// typecheck a single expression
-    </span><span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>expr_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, e: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;Type&gt; {
+    </span><span class="kw">pub fn </span>expr_type(<span class="kw-2">&amp;mut </span><span class="self">self</span>, e: <span class="kw-2">&amp;</span>Expr) -&gt; <span class="prelude-ty">Result</span>&lt;Type&gt; {
         <span class="kw">match </span>e {
             Expr::Call {
                 name: call_name,
