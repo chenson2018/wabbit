@@ -572,13 +572,14 @@ impl<'a> Parser<'a> {
         ]) {
             let token = self.previous();
             let id = self.assign_id_single(&token);
-            match token.literal {
-                Some(value) => Ok(Expr::Literal { value, id }),
-                None => msg!(
+            if let Some(value) = token.literal {
+                Ok(Expr::Literal { value, id })
+            } else {
+                msg!(
                     Msg::InternalErr,
                     &token,
                     "Scanner created a literal without a value."
-                ),
+                )
             }
         } else if let Ok((token, dtype)) = self.get_type() {
             let id = self.assign_id_single(&token);

@@ -1,7 +1,7 @@
 use crate::error::RangeReporter;
 use crate::types::WabbitType;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Keywords
     Const,

@@ -228,7 +228,7 @@ impl<'a> CodegenLLVM<'a> {
     }
 
     /// utility for generating binary instructions
-    fn binary_ops(&self, t: &Type, op: &BinaryOp) -> String {
+    fn binary_ops(t: Type, op: &BinaryOp) -> String {
         let s = match (t, op) {
             (Type::Int, BinaryOp::Plus) => "add",
             (Type::Int, BinaryOp::Minus) => "sub",
@@ -710,13 +710,10 @@ impl<'a> CodegenLLVM<'a> {
             Expr::Binary { lhs, op, rhs, .. } => {
                 let lhs_compile = self.llvm_expr(lhs);
                 let rhs_compile = self.llvm_expr(rhs);
-
                 let dtype = self.analyze.expr_type(lhs).unwrap();
                 let llvm_type = dtype.llvm_type();
-
                 let tmp_name = self.tmp_name();
-
-                let op = self.binary_ops(&dtype, op);
+                let op = Self::binary_ops(dtype, op);
 
                 self.loc().push(format!(
                     "\t{tmp_name} = {op} {llvm_type} {lhs_compile}, {rhs_compile}"

@@ -31,7 +31,7 @@ where
 
 /// this implementation allows reporting errors from any type that stores a map from expressions/statemts to source indices
 
-impl RangeReporter for (&HashMap<usize, (usize, usize)>, &usize) {
+impl RangeReporter for (&HashMap<usize, (usize, usize)>, usize) {
     fn extract_tokens<'a>(&'a self, _output: &mut Vec<&'a crate::tokens::Token>) {}
 
     fn extract_range(&self) -> (usize, usize) {
@@ -61,7 +61,7 @@ where
     }
 
     /// check if a name is already used by a variable name in the current scope
-    pub(crate) fn check_env(&self, name: &String, id: &usize) -> Result<()> {
+    pub(crate) fn check_env(&self, name: &String, id: usize) -> Result<()> {
         if self.env.top_contains(name) {
             msg!(Msg::RedeclareVar, (self.ranges, id), name)
         } else {
@@ -70,7 +70,7 @@ where
     }
 
     /// check if a name is already used by a constant
-    pub(crate) fn check_constant(&self, name: &String, id: &usize) -> Result<()> {
+    pub(crate) fn check_constant(&self, name: &String, id: usize) -> Result<()> {
         if self.constants.contains_key(name) {
             msg!(Msg::RedeclareConst, (self.ranges, id), name)
         } else {
@@ -79,7 +79,7 @@ where
     }
 
     /// check if a name is already used by a function
-    pub(crate) fn check_function(&self, name: &String, id: &usize) -> Result<()> {
+    pub(crate) fn check_function(&self, name: &String, id: usize) -> Result<()> {
         if self.functions.contains_key(name) {
             msg!(Msg::RedeclareFunc, (self.ranges, id), name)
         } else {

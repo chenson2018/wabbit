@@ -171,10 +171,10 @@ impl Scanner {
                     self.add_literal_token(TokenType::False, WabbitType::Bool(false));
                 }
                 TokenType::True => self.add_literal_token(TokenType::True, WabbitType::Bool(true)),
-                _ => self.add_token(keyword_tt.clone()),
+                _ => self.add_token(*keyword_tt),
             }
         } else if let Some(type_tt) = TYPES.get(&lexeme) {
-            self.add_token(type_tt.clone());
+            self.add_token(*type_tt);
         } else {
             self.add_token(TokenType::Name);
         };
@@ -224,14 +224,14 @@ impl Scanner {
         if self.is_end() {
             self.add_token(TokenType::Eof);
         } else if let Some(single_tt) = TOKENS_SINGLE.get(&c) {
-            self.add_token(single_tt.clone());
+            self.add_token(*single_tt);
         } else if let Some((next_for_double, maybe_single, double_tt)) = TOKENS_DOUBLE.get(&c) {
             // checking for pairs of chars that make a token
             if self.peek() == *next_for_double {
                 self.advance();
-                self.add_token(double_tt.clone());
+                self.add_token(*double_tt);
             } else if let Some(single_tt) = maybe_single {
-                self.add_token(single_tt.clone());
+                self.add_token(*single_tt);
             } else {
                 failed = true;
                 let err = err!(Msg::DoubleToken, self, c, next_for_double);

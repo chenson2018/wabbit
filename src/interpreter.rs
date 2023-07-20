@@ -19,7 +19,7 @@ pub enum Signal {
 
 impl<'a> Interpreter<'a> {
     /// interpret an expression and confirm it is a boolean at runtime
-    fn typecheck_bool(&mut self, e: &Expr, id: &usize) -> Result<bool> {
+    fn typecheck_bool(&mut self, e: &Expr, id: usize) -> Result<bool> {
         let eval = self.evaluate(e)?;
         match eval {
             WabbitType::Bool(val) => Ok(val),
@@ -32,7 +32,7 @@ impl<'a> Interpreter<'a> {
     /// interpret all statements
     pub fn interpret(&mut self) -> Result<()> {
         for statement in self.statements {
-            let _ = self.run_stmt(statement)?;
+            self.run_stmt(statement)?;
         }
         Ok(())
     }
@@ -44,11 +44,11 @@ impl<'a> Interpreter<'a> {
                 ref def_name, id, ..
             } => {
                 if !self.env.in_global_scope() {
-                    msg!(Msg::FuncDefScope, (self.ranges, id))
+                    msg!(Msg::FuncDefScope, (self.ranges, *id))
                 } else {
-                    self.check_constant(def_name, id)?;
-                    self.check_env(def_name, id)?;
-                    self.check_function(def_name, id)?;
+                    self.check_constant(def_name, *id)?;
+                    self.check_env(def_name, *id)?;
+                    self.check_function(def_name, *id)?;
                     self.functions.insert(def_name, stmt);
                     Ok(Signal::Unit)
                 }
@@ -58,7 +58,7 @@ impl<'a> Interpreter<'a> {
                 if self.call_depth > 0 {
                     Ok(Signal::Return(value))
                 } else {
-                    msg!(Msg::ReturnScope, (self.ranges, id))
+                    msg!(Msg::ReturnScope, (self.ranges, *id))
                 }
             }
             Stmt::Expr(e) => {
@@ -66,8 +66,8 @@ impl<'a> Interpreter<'a> {
                 Ok(Signal::Unit)
             }
             Stmt::Assign { name, value, id } => {
-                self.check_constant(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_function(name, *id)?;
 
                 let e = self.evaluate(value)?;
 
@@ -78,14 +78,14 @@ impl<'a> Interpreter<'a> {
                         } else {
                             return msg!(
                                 Msg::AssignRetype,
-                                (self.ranges, id),
+                                (self.ranges, *id),
                                 name,
                                 value.dtype(),
                                 e.dtype()
                             );
                         }
                     }
-                    None => return msg!(Msg::AssignUndefined, (self.ranges, id)),
+                    None => return msg!(Msg::AssignUndefined, (self.ranges, *id)),
                 };
                 Ok(Signal::Unit)
             }
@@ -94,19 +94,19 @@ impl<'a> Interpreter<'a> {
                 body,
                 id,
             } => {
-                while self.typecheck_bool(condition, id)? {
+                while self.typecheck_bool(condition, *id)? {
                     self.loop_depth += 1;
                     self.env.enter_child();
                     let signal = self.run_stmt(body)?;
                     match signal {
                         Signal::Unit => (),
                         Signal::Return(_) => {
-                            self.env.exit_child(&(self.ranges, id))?;
+                            self.env.exit_child(&(self.ranges, *id))?;
                             self.loop_depth -= 1;
                             return Ok(signal);
                         }
                         Signal::Break => {
-                            self.env.exit_child(&(self.ranges, id))?;
+                            self.env.exit_child(&(self.ranges, *id))?;
                             self.loop_depth -= 1;
                             break;
                         }
@@ -115,7 +115,7 @@ impl<'a> Interpreter<'a> {
                         }
                     }
                     self.loop_depth -= 1;
-                    self.env.exit_child(&(self.ranges, id))?;
+                    self.env.exit_child(&(self.ranges, *id))?;
                 }
                 Ok(Signal::Unit)
             }
@@ -125,19 +125,19 @@ impl<'a> Interpreter<'a> {
                 value,
                 id,
             } => {
-                self.check_constant(name, id)?;
-                self.check_env(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_env(name, *id)?;
+                self.check_function(name, *id)?;
 
                 if !self.env.in_global_scope() {
-                    msg!(Msg::ConstScope, (self.ranges, id))
+                    msg!(Msg::ConstScope, (self.ranges, *id))
                 } else {
                     let value = self.evaluate(value)?;
                     if maybe_type.is_none() || (*maybe_type).unwrap() == value.dtype() {
                         self.constants.insert(name, value);
                         Ok(Signal::Unit)
                     } else {
-                        msg!(Msg::InitType, (self.ranges, id))
+                        msg!(Msg::InitType, (self.ranges, *id))
                     }
                 }
             }
@@ -147,9 +147,9 @@ impl<'a> Interpreter<'a> {
                 maybe_value,
                 id,
             } => {
-                self.check_constant(name, id)?;
-                self.check_env(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_env(name, *id)?;
+                self.check_function(name, *id)?;
 
                 match (maybe_type, maybe_value) {
                     (Some(typename), Some(value)) => {
@@ -159,7 +159,7 @@ impl<'a> Interpreter<'a> {
                         if typename == &value.dtype() {
                             self.env.define_init(name, value);
                         } else {
-                            return msg!(Msg::InitType, (self.ranges, id));
+                            return msg!(Msg::InitType, (self.ranges, *id));
                         }
                     }
                     (None, Some(value)) => {
@@ -173,7 +173,7 @@ impl<'a> Interpreter<'a> {
                     (None, None) => {
                         return msg!(
                             Msg::InternalErr,
-                            (self.ranges, id),
+                            (self.ranges, *id),
                             "Parser allowed variable definition without type or initial value"
                         );
                     }
@@ -186,7 +186,7 @@ impl<'a> Interpreter<'a> {
                 maybe_else_block,
                 id,
             } => {
-                let condition = self.typecheck_bool(condition, id)?;
+                let condition = self.typecheck_bool(condition, *id)?;
 
                 self.env.enter_child();
 
@@ -198,7 +198,7 @@ impl<'a> Interpreter<'a> {
                     Signal::Unit
                 };
 
-                self.env.exit_child(&(self.ranges, id))?;
+                self.env.exit_child(&(self.ranges, *id))?;
                 Ok(signal)
             }
             Stmt::Block { statements, .. } => {
@@ -218,7 +218,7 @@ impl<'a> Interpreter<'a> {
                         LoopControl::Continue => Ok(Signal::Continue),
                     }
                 } else {
-                    msg!(Msg::LoopReq, (self.ranges, id))
+                    msg!(Msg::LoopReq, (self.ranges, *id))
                 }
             }
             Stmt::Print { value, .. } => {
@@ -238,27 +238,26 @@ impl<'a> Interpreter<'a> {
     fn evaluate(&mut self, e: &Expr) -> Result<WabbitType> {
         match e {
             Expr::TypeConversion { dtype, params, id } => {
-                match params.as_slice() {
-                    [to_convert] => {
-                        let eval = self.evaluate(to_convert)?;
-                        match (dtype, &eval) {
-                            (Type::Int, WabbitType::Char(c)) => Ok(WabbitType::Int(*c as i32)),
-                            (Type::Int, WabbitType::Bool(b)) => Ok(WabbitType::Int(*b as i32)),
-                            (Type::Int, WabbitType::Float(f)) => Ok(WabbitType::Int(*f as i32)),
-                            (Type::Float, WabbitType::Int(i)) => Ok(WabbitType::Float(*i as f64)),
-                            (Type::Char, WabbitType::Int(i)) => {
-                                Ok(WabbitType::Char((*i as u8) as char))
-                            }
-                            (Type::Bool, WabbitType::Int(i)) => Ok(WabbitType::Bool(*i == 1)),
-                            // note sure if in the spec, but this seems reasonable...
-                            (Type::Bool, WabbitType::Bool(_))
-                            | (Type::Int, WabbitType::Int(_))
-                            | (Type::Float, WabbitType::Float(_))
-                            | (Type::Char, WabbitType::Char(_)) => Ok(eval),
-                            _ => msg!(Msg::TypeConvert, (self.ranges, id)),
+                if let [to_convert] = params.as_slice() {
+                    let eval = self.evaluate(to_convert)?;
+                    match (dtype, &eval) {
+                        (Type::Int, WabbitType::Char(c)) => Ok(WabbitType::Int(*c as i32)),
+                        (Type::Int, WabbitType::Bool(b)) => Ok(WabbitType::Int(*b as i32)),
+                        (Type::Int, WabbitType::Float(f)) => Ok(WabbitType::Int(*f as i32)),
+                        (Type::Float, WabbitType::Int(i)) => Ok(WabbitType::Float(*i as f64)),
+                        (Type::Char, WabbitType::Int(i)) => {
+                            Ok(WabbitType::Char((*i as u8) as char))
                         }
+                        (Type::Bool, WabbitType::Int(i)) => Ok(WabbitType::Bool(*i == 1)),
+                        // note sure if in the spec, but this seems reasonable...
+                        (Type::Bool, WabbitType::Bool(_))
+                        | (Type::Int, WabbitType::Int(_))
+                        | (Type::Float, WabbitType::Float(_))
+                        | (Type::Char, WabbitType::Char(_)) => Ok(eval),
+                        _ => msg!(Msg::TypeConvert, (self.ranges, *id)),
                     }
-                    _ => msg!(Msg::ConvertAirty, (self.ranges, id)),
+                } else {
+                    msg!(Msg::ConvertAirty, (self.ranges, *id))
                 }
             }
             Expr::Call {
@@ -283,7 +282,7 @@ impl<'a> Interpreter<'a> {
                     if def_airty != call_airty {
                         msg!(
                             Msg::FuncAirty,
-                            (self.ranges, id),
+                            (self.ranges, *id),
                             call_name,
                             def_airty,
                             call_airty
@@ -302,18 +301,17 @@ impl<'a> Interpreter<'a> {
                             if def_type != &call_expr_eval.dtype() {
                                 return msg!(
                                     Msg::ParamType,
-                                    (self.ranges, id),
+                                    (self.ranges, *id),
                                     &def_name,
                                     def_type,
                                     call_expr_eval.dtype()
                                 );
-                            } else {
-                                evaluated_params.insert(def_name, VarStore::Init(call_expr_eval));
                             }
+                            evaluated_params.insert(def_name, VarStore::Init(call_expr_eval));
                         }
 
                         if def_params.len() != evaluated_params.len() {
-                            return msg!(Msg::DupArgs, (self.ranges, id));
+                            return msg!(Msg::DupArgs, (self.ranges, *id));
                         };
 
                         self.env.enter_child_fn(evaluated_params);
@@ -321,14 +319,14 @@ impl<'a> Interpreter<'a> {
 
                         let signal = self.run_stmt(body)?;
 
-                        self.env.exit_child(&(self.ranges, id))?;
+                        self.env.exit_child(&(self.ranges, *id))?;
                         self.call_depth -= 1;
 
                         if let Signal::Return(call_return) = signal {
                             if return_type != &call_return.dtype() {
                                 msg!(
                                     Msg::ReturnType,
-                                    (self.ranges, id),
+                                    (self.ranges, *id),
                                     &call_name,
                                     return_type,
                                     call_return.dtype()
@@ -337,22 +335,22 @@ impl<'a> Interpreter<'a> {
                                 Ok(call_return)
                             }
                         } else {
-                            msg!(Msg::NoReturn, (self.ranges, id))
+                            msg!(Msg::NoReturn, (self.ranges, *id))
                         }
                     }
                 } else {
-                    msg!(Msg::FuncUndefined, (self.ranges, id))
+                    msg!(Msg::FuncUndefined, (self.ranges, *id))
                 }
             }
-            Expr::TypeName { id, .. } => msg!(Msg::TypeEval, (self.ranges, id)),
+            Expr::TypeName { id, .. } => msg!(Msg::TypeEval, (self.ranges, *id)),
             Expr::Logical { lhs, op, rhs, id } => {
-                let eval_lhs = self.typecheck_bool(lhs, id)?;
+                let eval_lhs = self.typecheck_bool(lhs, *id)?;
                 match op {
                     LogicalOp::LogicalOr { .. } => {
                         if eval_lhs {
                             Ok(WabbitType::Bool(true))
                         } else {
-                            let eval_rhs = self.typecheck_bool(rhs, id)?;
+                            let eval_rhs = self.typecheck_bool(rhs, *id)?;
                             Ok(WabbitType::Bool(eval_lhs || eval_rhs))
                         }
                     }
@@ -360,7 +358,7 @@ impl<'a> Interpreter<'a> {
                         if !eval_lhs {
                             Ok(WabbitType::Bool(false))
                         } else {
-                            let eval_rhs = self.typecheck_bool(rhs, id)?;
+                            let eval_rhs = self.typecheck_bool(rhs, *id)?;
                             Ok(WabbitType::Bool(eval_lhs && eval_rhs))
                         }
                     }
@@ -372,9 +370,9 @@ impl<'a> Interpreter<'a> {
                 } else if let Some(VarStore::Init(var)) = self.env.get(name) {
                     Ok(var)
                 } else if let Some(VarStore::UnInit(_)) = self.env.get(name) {
-                    msg!(Msg::AccessUninit, (self.ranges, id), name)
+                    msg!(Msg::AccessUninit, (self.ranges, *id), name)
                 } else {
-                    msg!(Msg::VarUndefined, (self.ranges, id))
+                    msg!(Msg::VarUndefined, (self.ranges, *id))
                 }
             }
             Expr::Grouping { e, .. } => Ok(self.evaluate(e)?),
@@ -382,11 +380,11 @@ impl<'a> Interpreter<'a> {
                 let eval_operand = self.evaluate(operand)?;
                 match op {
                     UnaryOp::LogicalNot => {
-                        let raw_operand = self.typecheck_bool(operand, id)?;
+                        let raw_operand = self.typecheck_bool(operand, *id)?;
                         Ok(WabbitType::Bool(!raw_operand))
                     }
-                    UnaryOp::Plus => numeric_unary!(eval_operand, (self.ranges, id), (|a| a)),
-                    UnaryOp::Minus => numeric_unary!(eval_operand, (self.ranges, id), (|a| -a)),
+                    UnaryOp::Plus => numeric_unary!(eval_operand, (self.ranges, *id), (|a| a)),
+                    UnaryOp::Minus => numeric_unary!(eval_operand, (self.ranges, *id), (|a| -a)),
                 }
             }
             Expr::Binary { lhs, op, rhs, id } => {
@@ -394,34 +392,34 @@ impl<'a> Interpreter<'a> {
                 let eval_rhs = self.evaluate(rhs)?;
 
                 if !(eval_lhs.dtype() == eval_rhs.dtype()) {
-                    msg!(Msg::TypeMatch, (self.ranges, id))
+                    msg!(Msg::TypeMatch, (self.ranges, *id))
                 } else {
                     match op {
                         BinaryOp::Plus => {
-                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, id), +)
+                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, *id), +)
                         }
                         BinaryOp::Minus => {
-                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, id), -)
+                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, *id), -)
                         }
                         BinaryOp::Times => {
-                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, id), *)
+                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, *id), *)
                         }
                         BinaryOp::Divide => {
-                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, id), /)
+                            numeric_binary!(eval_lhs, eval_rhs, (self.ranges, *id), /)
                         }
-                        BinaryOp::Less => compare!(eval_lhs, eval_rhs, (self.ranges, id), <),
+                        BinaryOp::Less => compare!(eval_lhs, eval_rhs, (self.ranges, *id), <),
                         BinaryOp::LessEqual => {
-                            compare!(eval_lhs, eval_rhs, (self.ranges, id), <=)
+                            compare!(eval_lhs, eval_rhs, (self.ranges, *id), <=)
                         }
-                        BinaryOp::Greater => compare!(eval_lhs, eval_rhs, (self.ranges, id), >),
+                        BinaryOp::Greater => compare!(eval_lhs, eval_rhs, (self.ranges, *id), >),
                         BinaryOp::GreaterEqual => {
-                            compare!(eval_lhs, eval_rhs, (self.ranges, id), >=)
+                            compare!(eval_lhs, eval_rhs, (self.ranges, *id), >=)
                         }
                         BinaryOp::EqualEqual => {
-                            equality!(eval_lhs, eval_rhs, (self.ranges, id), ==)
+                            equality!(eval_lhs, eval_rhs, (self.ranges, *id), ==)
                         }
                         BinaryOp::NotEqual => {
-                            equality!(eval_lhs, eval_rhs, (self.ranges, id), !=)
+                            equality!(eval_lhs, eval_rhs, (self.ranges, *id), !=)
                         }
                     }
                 }

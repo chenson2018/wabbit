@@ -25,8 +25,8 @@ impl<'a> Analyzer<'a, Type> {
     pub(crate) fn typecheck_stmt(&mut self, stmt: &'a Stmt) -> Result<Option<Type>> {
         match stmt {
             Stmt::Assign { name, value, id } => {
-                self.check_constant(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_function(name, *id)?;
 
                 let new_type = self.expr_type(value)?;
 
@@ -37,14 +37,14 @@ impl<'a> Analyzer<'a, Type> {
                         } else {
                             return msg!(
                                 Msg::AssignRetype,
-                                (self.ranges, id),
+                                (self.ranges, *id),
                                 name,
                                 old_type,
                                 new_type
                             );
                         }
                     }
-                    None => return msg!(Msg::AssignUndefined, (self.ranges, id)),
+                    None => return msg!(Msg::AssignUndefined, (self.ranges, *id)),
                 };
                 Ok(None)
             }
@@ -82,11 +82,11 @@ impl<'a> Analyzer<'a, Type> {
                 if return_types.is_empty() {
                     Ok(None)
                 } else if return_exclude_if_while.is_empty() && self.loop_depth == 0 {
-                    msg!(Msg::AltBranch, (self.ranges, id))
+                    msg!(Msg::AltBranch, (self.ranges, *id))
                 } else if return_types.iter().all(|item| item == &return_types[0]) {
                     Ok(Some(return_types[0]))
                 } else {
-                    msg!(Msg::ReturnDiverge, (self.ranges, id))
+                    msg!(Msg::ReturnDiverge, (self.ranges, *id))
                 }
             }
             Stmt::While {
@@ -97,7 +97,7 @@ impl<'a> Analyzer<'a, Type> {
                 let condition_type = self.expr_type(condition)?;
 
                 if condition_type != Type::Bool {
-                    return msg!(Msg::ExpectType, (self.ranges, id), "bool");
+                    return msg!(Msg::ExpectType, (self.ranges, *id), "bool");
                 };
 
                 self.loop_depth += 1;
@@ -106,7 +106,7 @@ impl<'a> Analyzer<'a, Type> {
                 let maybe_return = self.typecheck_stmt(body)?;
 
                 self.loop_depth -= 1;
-                self.env.exit_child(&(self.ranges, id))?;
+                self.env.exit_child(&(self.ranges, *id))?;
 
                 Ok(maybe_return)
             }
@@ -115,7 +115,7 @@ impl<'a> Analyzer<'a, Type> {
                 if self.call_depth > 0 {
                     Ok(Some(value_type))
                 } else {
-                    msg!(Msg::ReturnScope, (self.ranges, id))
+                    msg!(Msg::ReturnScope, (self.ranges, *id))
                 }
             }
             Stmt::If {
@@ -127,7 +127,7 @@ impl<'a> Analyzer<'a, Type> {
                 let condition_type = self.expr_type(condition)?;
 
                 if condition_type != Type::Bool {
-                    return msg!(Msg::ExpectType, (self.ranges, id), "bool");
+                    return msg!(Msg::ExpectType, (self.ranges, *id), "bool");
                 };
 
                 // while typechecking. we dont know which block we enter
@@ -135,19 +135,19 @@ impl<'a> Analyzer<'a, Type> {
 
                 self.env.enter_child();
                 let maybe_then_return = self.typecheck_stmt(then_block)?;
-                self.env.exit_child(&(self.ranges, id))?;
+                self.env.exit_child(&(self.ranges, *id))?;
 
                 if let Some(else_block) = maybe_else_block {
                     self.env.enter_child();
                     let maybe_else_return = self.typecheck_stmt(else_block)?;
-                    self.env.exit_child(&(self.ranges, id))?;
+                    self.env.exit_child(&(self.ranges, *id))?;
 
                     // if both blocks return, check they have the same type
                     if let (Some(then_return), Some(else_return)) =
                         (&maybe_then_return, &maybe_else_return)
                     {
                         if then_return != else_return {
-                            return msg!(Msg::ReturnDiverge, (self.ranges, id));
+                            return msg!(Msg::ReturnDiverge, (self.ranges, *id));
                         }
                     };
                 };
@@ -162,7 +162,7 @@ impl<'a> Analyzer<'a, Type> {
                 if self.loop_depth > 0 {
                     Ok(None)
                 } else {
-                    msg!(Msg::LoopReq, (self.ranges, id))
+                    msg!(Msg::LoopReq, (self.ranges, *id))
                 }
             }
             Stmt::Print { value, .. } => {
@@ -175,19 +175,19 @@ impl<'a> Analyzer<'a, Type> {
                 value,
                 id,
             } => {
-                self.check_constant(name, id)?;
-                self.check_env(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_env(name, *id)?;
+                self.check_function(name, *id)?;
 
                 if !self.env.in_global_scope() {
-                    msg!(Msg::ConstScope, (self.ranges, id))
+                    msg!(Msg::ConstScope, (self.ranges, *id))
                 } else {
                     let value_type = self.expr_type(value)?;
                     if maybe_type.is_none() || (*maybe_type).unwrap() == value_type {
                         self.constants.insert(name, value_type);
                         Ok(None)
                     } else {
-                        msg!(Msg::InitType, (self.ranges, id))
+                        msg!(Msg::InitType, (self.ranges, *id))
                     }
                 }
             }
@@ -199,11 +199,11 @@ impl<'a> Analyzer<'a, Type> {
                 id,
             } => {
                 if !self.env.in_global_scope() {
-                    msg!(Msg::FuncDefScope, (self.ranges, id))
+                    msg!(Msg::FuncDefScope, (self.ranges, *id))
                 } else {
-                    self.check_constant(def_name, id)?;
-                    self.check_env(def_name, id)?;
-                    self.check_function(def_name, id)?;
+                    self.check_constant(def_name, *id)?;
+                    self.check_env(def_name, *id)?;
+                    self.check_function(def_name, *id)?;
 
                     let param_types: HashMap<&String, VarStore<Type>> = def_params
                         .iter()
@@ -211,7 +211,7 @@ impl<'a> Analyzer<'a, Type> {
                         .collect();
 
                     if def_params.len() != param_types.len() {
-                        return msg!(Msg::DupArgs, (self.ranges, id));
+                        return msg!(Msg::DupArgs, (self.ranges, *id));
                     };
 
                     // In the interpreter, these checks happen at the call time
@@ -227,7 +227,7 @@ impl<'a> Analyzer<'a, Type> {
 
                     let body_type = self.typecheck_stmt(body)?;
 
-                    self.env.exit_child(&(self.ranges, id))?;
+                    self.env.exit_child(&(self.ranges, *id))?;
                     self.call_depth -= 1;
 
                     if let Some(call_return) = body_type {
@@ -235,7 +235,7 @@ impl<'a> Analyzer<'a, Type> {
                             self.functions.remove(def_name);
                             msg!(
                                 Msg::ReturnType,
-                                (self.ranges, id),
+                                (self.ranges, *id),
                                 &def_name,
                                 return_type,
                                 call_return
@@ -245,7 +245,7 @@ impl<'a> Analyzer<'a, Type> {
                         }
                     } else {
                         self.functions.remove(def_name);
-                        msg!(Msg::NoReturn, (self.ranges, id))
+                        msg!(Msg::NoReturn, (self.ranges, *id))
                     }
                 }
             }
@@ -255,9 +255,9 @@ impl<'a> Analyzer<'a, Type> {
                 maybe_value,
                 id,
             } => {
-                self.check_constant(name, id)?;
-                self.check_env(name, id)?;
-                self.check_function(name, id)?;
+                self.check_constant(name, *id)?;
+                self.check_env(name, *id)?;
+                self.check_function(name, *id)?;
 
                 match (maybe_type, maybe_value) {
                     (Some(typename), Some(value)) => {
@@ -267,7 +267,7 @@ impl<'a> Analyzer<'a, Type> {
                         if typename == &value_type {
                             self.env.define_init(name, *typename);
                         } else {
-                            return msg!(Msg::InitType, (self.ranges, id));
+                            return msg!(Msg::InitType, (self.ranges, *id));
                         }
                     }
                     (None, Some(value)) => {
@@ -280,7 +280,7 @@ impl<'a> Analyzer<'a, Type> {
                     (None, None) => {
                         return msg!(
                             Msg::InternalErr,
-                            (self.ranges, id),
+                            (self.ranges, *id),
                             "Parser allowed variable definition without type or initial value"
                         );
                     }
@@ -317,7 +317,7 @@ impl<'a> Analyzer<'a, Type> {
                     if def_airty != call_airty {
                         msg!(
                             Msg::FuncAirty,
-                            (self.ranges, id),
+                            (self.ranges, *id),
                             call_name,
                             def_airty,
                             call_airty
@@ -330,7 +330,7 @@ impl<'a> Analyzer<'a, Type> {
                             if def_type != &call_expr_type {
                                 return msg!(
                                     Msg::ParamType,
-                                    (self.ranges, id),
+                                    (self.ranges, *id),
                                     &def_name,
                                     def_type,
                                     call_expr_type
@@ -341,7 +341,7 @@ impl<'a> Analyzer<'a, Type> {
                         Ok(*return_type)
                     }
                 } else {
-                    msg!(Msg::FuncUndefined, (self.ranges, id))
+                    msg!(Msg::FuncUndefined, (self.ranges, *id))
                 }
             }
             Expr::VarName { name, id } => {
@@ -350,28 +350,26 @@ impl<'a> Analyzer<'a, Type> {
                 } else if let Some(VarStore::Init(var_type)) = self.env.get(name) {
                     Ok(var_type)
                 } else if let Some(VarStore::UnInit(_)) = self.env.get(name) {
-                    msg!(Msg::AccessUninit, (self.ranges, id), name)
+                    msg!(Msg::AccessUninit, (self.ranges, *id), name)
                 } else {
-                    msg!(Msg::VarUndefined, (self.ranges, id))
+                    msg!(Msg::VarUndefined, (self.ranges, *id))
                 }
             }
-            Expr::TypeName { id, .. } => msg!(Msg::TypeEval, (self.ranges, id)),
+            Expr::TypeName { id, .. } => msg!(Msg::TypeEval, (self.ranges, *id)),
             Expr::TypeConversion { dtype, params, id } => {
                 if let [to_convert] = params.as_slice() {
                     let original_type = self.expr_type(to_convert)?;
                     match (dtype, original_type) {
-                        (Type::Int, Type::Char)
-                        | (Type::Int, Type::Bool)
-                        | (Type::Int, Type::Float) => Ok(Type::Int),
+                        (Type::Int, Type::Char | Type::Bool | Type::Float) => Ok(Type::Int),
                         (Type::Float, Type::Int) => Ok(Type::Float),
                         (Type::Char, Type::Int) => Ok(Type::Char),
                         (Type::Bool, Type::Int) => Ok(Type::Bool),
                         // note sure if in the spec, but this seems reasonable...
                         (a, b) if a == &b => Ok(*a),
-                        _ => msg!(Msg::TypeConvert, (self.ranges, id)),
+                        _ => msg!(Msg::TypeConvert, (self.ranges, *id)),
                     }
                 } else {
-                    msg!(Msg::ConvertAirty, (self.ranges, id))
+                    msg!(Msg::ConvertAirty, (self.ranges, *id))
                 }
             }
 
@@ -380,14 +378,14 @@ impl<'a> Analyzer<'a, Type> {
                 let rhs_type = self.expr_type(rhs)?;
 
                 if lhs_type != rhs_type {
-                    msg!(Msg::TypeMatch, (self.ranges, id))
+                    msg!(Msg::TypeMatch, (self.ranges, *id))
                 } else {
                     match op {
                         BinaryOp::Plus | BinaryOp::Divide | BinaryOp::Times | BinaryOp::Minus => {
                             if [Type::Float, Type::Int].contains(&lhs_type) {
                                 Ok(lhs_type)
                             } else {
-                                msg!(Msg::ExpectType, (self.ranges, id), "int, float")
+                                msg!(Msg::ExpectType, (self.ranges, *id), "int, float")
                             }
                         }
                         BinaryOp::Less
@@ -397,7 +395,7 @@ impl<'a> Analyzer<'a, Type> {
                             if [Type::Float, Type::Int, Type::Char].contains(&lhs_type) {
                                 Ok(Type::Bool)
                             } else {
-                                msg!(Msg::ExpectType, (self.ranges, id), "int, float, char")
+                                msg!(Msg::ExpectType, (self.ranges, *id), "int, float, char")
                             }
                         }
                         BinaryOp::EqualEqual | BinaryOp::NotEqual => Ok(Type::Bool),
@@ -410,7 +408,7 @@ impl<'a> Analyzer<'a, Type> {
                 let rhs_type = self.expr_type(rhs)?;
 
                 if lhs_type != Type::Bool || rhs_type != Type::Bool {
-                    msg!(Msg::ExpectType, (self.ranges, id), "bool")
+                    msg!(Msg::ExpectType, (self.ranges, *id), "bool")
                 } else {
                     Ok(Type::Bool)
                 }
@@ -422,14 +420,14 @@ impl<'a> Analyzer<'a, Type> {
                         if operand_type == Type::Bool {
                             Ok(Type::Bool)
                         } else {
-                            msg!(Msg::ExpectType, (self.ranges, id), "bool")
+                            msg!(Msg::ExpectType, (self.ranges, *id), "bool")
                         }
                     }
                     UnaryOp::Plus | UnaryOp::Minus => {
                         if [Type::Float, Type::Int].contains(&operand_type) {
                             Ok(operand_type)
                         } else {
-                            msg!(Msg::ExpectType, (self.ranges, id), "int, float")
+                            msg!(Msg::ExpectType, (self.ranges, *id), "int, float")
                         }
                     }
                 }
