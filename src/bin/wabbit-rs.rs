@@ -49,7 +49,7 @@ pub struct Cli {
 fn main() -> Result<(), MainError> {
     let args = Cli::parse();
     let source = std::fs::read_to_string(&args.path)?;
-    let mut scanner = Scanner::new(source.clone());
+    let mut scanner = Scanner::new(&source);
 
     if let Err(errs) = scanner.scan() {
         let error_report = WabbitErrorReporter::new(errs, args.path, source, "Scanner");

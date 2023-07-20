@@ -88,7 +88,7 @@ impl Scanner {
     }
 
     /// initialize a new scanner
-    pub fn new(s: String) -> Scanner {
+    pub fn new(s: &str) -> Scanner {
         Scanner {
             source: s.chars().collect::<Vec<char>>(),
             tokens: Vec::new(),

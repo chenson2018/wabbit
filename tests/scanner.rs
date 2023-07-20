@@ -15,7 +15,7 @@ mod test {
     }
 
     fn expect_err(source: &str, expected_error: Msg) {
-        let mut scanner = Scanner::new(source.to_string());
+        let mut scanner = Scanner::new(source);
         if let Err(errs) = scanner.scan() {
             let colored_err = red(expected_error.msg());
             assert_eq!(errs[0].label, colored_err)
@@ -29,7 +29,7 @@ mod test {
             .format(expected_error.msg(), args)
             .expect("format error");
 
-        let mut scanner = Scanner::new(source.to_string());
+        let mut scanner = Scanner::new(source);
         if let Err(errs) = scanner.scan() {
             match errs.as_slice() {
                 [err] => {
@@ -70,7 +70,7 @@ mod test {
 
         for file in paths {
             let source = std::fs::read_to_string(file.unwrap().path()).unwrap();
-            let mut scanner = Scanner::new(source);
+            let mut scanner = Scanner::new(&source);
             scanner.scan().unwrap()
         }
     }

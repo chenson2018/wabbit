@@ -2,7 +2,7 @@ use crate::analyzer::Analyzer;
 use crate::ast::{Expr, Stmt};
 use crate::environment::VarStore;
 use crate::error::{msg, Msg, RangeReporter, Result};
-use crate::operators::{BinaryOp, LoopControl, UnaryOp};
+use crate::operators::{BinaryOp, UnaryOp};
 use crate::types::Type;
 use std::collections::HashMap;
 
@@ -14,7 +14,7 @@ impl<'a> Typechecker<'a> {
     /// typecheck all statements
     pub fn typecheck(&mut self) -> Result<()> {
         for statement in self.statements {
-            let _ = self.typecheck_stmt(statement)?;
+            self.typecheck_stmt(statement)?;
         }
         Ok(())
     }
@@ -57,8 +57,8 @@ impl<'a> Analyzer<'a, Type> {
                         return_types.push(ret_type);
 
                         match stmt {
-                            Stmt::While { .. } => (),
-                            Stmt::If {
+                            Stmt::While { .. }
+                            | Stmt::If {
                                 maybe_else_block: None,
                                 ..
                             } => (),
@@ -158,12 +158,9 @@ impl<'a> Analyzer<'a, Type> {
                     Ok(None)
                 }
             }
-            Stmt::LoopControl { control, id } => {
+            Stmt::LoopControl { id, .. } => {
                 if self.loop_depth > 0 {
-                    match control {
-                        LoopControl::Break => Ok(None),
-                        LoopControl::Continue => Ok(None),
-                    }
+                    Ok(None)
                 } else {
                     msg!(Msg::LoopReq, (self.ranges, id))
                 }
@@ -360,24 +357,24 @@ impl<'a> Analyzer<'a, Type> {
             }
             Expr::TypeName { id, .. } => msg!(Msg::TypeEval, (self.ranges, id)),
             Expr::TypeConversion { dtype, params, id } => {
-                match params.as_slice() {
-                    [to_convert] => {
-                        let original_type = self.expr_type(to_convert)?;
-                        match (dtype, original_type) {
-                            (Type::Int, Type::Char) => Ok(Type::Int),
-                            (Type::Int, Type::Bool) => Ok(Type::Int),
-                            (Type::Int, Type::Float) => Ok(Type::Int),
-                            (Type::Float, Type::Int) => Ok(Type::Float),
-                            (Type::Char, Type::Int) => Ok(Type::Char),
-                            (Type::Bool, Type::Int) => Ok(Type::Bool),
-                            // note sure if in the spec, but this seems reasonable...
-                            (a, b) if a == &b => Ok(*a),
-                            _ => msg!(Msg::TypeConvert, (self.ranges, id)),
-                        }
+                if let [to_convert] = params.as_slice() {
+                    let original_type = self.expr_type(to_convert)?;
+                    match (dtype, original_type) {
+                        (Type::Int, Type::Char)
+                        | (Type::Int, Type::Bool)
+                        | (Type::Int, Type::Float) => Ok(Type::Int),
+                        (Type::Float, Type::Int) => Ok(Type::Float),
+                        (Type::Char, Type::Int) => Ok(Type::Char),
+                        (Type::Bool, Type::Int) => Ok(Type::Bool),
+                        // note sure if in the spec, but this seems reasonable...
+                        (a, b) if a == &b => Ok(*a),
+                        _ => msg!(Msg::TypeConvert, (self.ranges, id)),
                     }
-                    _ => msg!(Msg::ConvertAirty, (self.ranges, id)),
+                } else {
+                    msg!(Msg::ConvertAirty, (self.ranges, id))
                 }
             }
+
             Expr::Binary { lhs, op, rhs, id } => {
                 let lhs_type = self.expr_type(lhs)?;
                 let rhs_type = self.expr_type(rhs)?;

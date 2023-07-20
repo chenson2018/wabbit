@@ -9,7 +9,7 @@ mod test {
 
         for file in paths {
             let source = std::fs::read_to_string(file.unwrap().path()).unwrap();
-            let mut scanner = Scanner::new(source.clone());
+            let mut scanner = Scanner::new(&source);
             scanner.scan().unwrap();
             let mut parser = Parser::from(&scanner);
             parser.parse().unwrap();
@@ -24,7 +24,7 @@ mod test {
                     .join("\n")
             );
 
-            let mut scanner2 = Scanner::new(source_from_formatter);
+            let mut scanner2 = Scanner::new(&source_from_formatter);
             scanner2.scan().unwrap();
             let mut parser2 = Parser::from(&scanner2);
             parser2.parse().unwrap();

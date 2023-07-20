@@ -19,7 +19,7 @@ pub fn wasm_entry() -> Result<(), JsValue> {
 /// use of WebAssembly as a compilation target
 #[wasm_bindgen]
 pub fn wasm_interp(source: &str) -> String {
-    let mut scanner = Scanner::new(source.to_string());
+    let mut scanner = Scanner::new(source);
 
     // doing simplified error reporting here...
     // this also has the terminal color codes in the error strings

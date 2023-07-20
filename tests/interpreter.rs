@@ -7,7 +7,7 @@ mod test {
 
     fn expect_io(path: &str, expected: Vec<WabbitType>) {
         let source = std::fs::read_to_string(path).unwrap();
-        let mut scanner = Scanner::new(source);
+        let mut scanner = Scanner::new(&source);
         scanner.scan().unwrap();
         let mut parser = Parser::from(&scanner);
         parser.parse().unwrap();
@@ -261,7 +261,7 @@ mod test {
     #[ignore]
     fn _23_mandel() {
         let source = std::fs::read_to_string("./program_examples/23_mandel.wb").unwrap();
-        let mut scanner = Scanner::new(source);
+        let mut scanner = Scanner::new(&source);
         scanner.scan().unwrap();
         let mut parser = Parser::from(&scanner);
         parser.parse().unwrap();

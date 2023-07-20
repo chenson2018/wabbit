@@ -16,7 +16,7 @@ mod test {
     }
 
     fn expect_err(source: &str, expected_error: Msg) {
-        let mut scanner = Scanner::new(source.to_string());
+        let mut scanner = Scanner::new(source);
         scanner.scan().unwrap();
         let mut parser = Parser::from(&scanner);
         if let Err(e) = parser.parse() {
@@ -32,7 +32,7 @@ mod test {
             .format(expected_error.msg(), args)
             .expect("format error");
 
-        let mut scanner = Scanner::new(source.to_string());
+        let mut scanner = Scanner::new(source);
         scanner.scan().unwrap();
         let mut parser = Parser::from(&scanner);
         if let Err(e) = parser.parse() {
@@ -83,7 +83,7 @@ mod test {
 
         for file in paths {
             let source = std::fs::read_to_string(file.unwrap().path()).unwrap();
-            let mut scanner = Scanner::new(source);
+            let mut scanner = Scanner::new(&source);
             scanner.scan().unwrap();
             let mut parser = Parser::from(&scanner);
             parser.parse().unwrap();
