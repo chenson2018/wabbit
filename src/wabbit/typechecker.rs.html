@@ -438,14 +438,11 @@
 <a href="#438" id="438">438</a>
 <a href="#439" id="439">439</a>
 <a href="#440" id="440">440</a>
-<a href="#441" id="441">441</a>
-<a href="#442" id="442">442</a>
-<a href="#443" id="443">443</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::analyzer::Analyzer;
 <span class="kw">use </span><span class="kw">crate</span>::ast::{Expr, Stmt};
 <span class="kw">use </span><span class="kw">crate</span>::environment::VarStore;
 <span class="kw">use </span><span class="kw">crate</span>::error::{msg, Msg, RangeReporter, <span class="prelude-ty">Result</span>};
-<span class="kw">use </span><span class="kw">crate</span>::operators::{BinaryOp, LoopControl, UnaryOp};
+<span class="kw">use </span><span class="kw">crate</span>::operators::{BinaryOp, UnaryOp};
 <span class="kw">use </span><span class="kw">crate</span>::types::Type;
 <span class="kw">use </span>std::collections::HashMap;
 
@@ -457,7 +454,7 @@
     <span class="doccomment">/// typecheck all statements
     </span><span class="kw">pub fn </span>typecheck(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">for </span>statement <span class="kw">in </span><span class="self">self</span>.statements {
-            <span class="kw">let _ </span>= <span class="self">self</span>.typecheck_stmt(statement)<span class="question-mark">?</span>;
+            <span class="self">self</span>.typecheck_stmt(statement)<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
@@ -500,8 +497,8 @@
                         return_types.push(ret_type);
 
                         <span class="kw">match </span>stmt {
-                            Stmt::While { .. } =&gt; (),
-                            Stmt::If {
+                            Stmt::While { .. }
+                            | Stmt::If {
                                 maybe_else_block: <span class="prelude-val">None</span>,
                                 ..
                             } =&gt; (),
@@ -601,12 +598,9 @@
                     <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 }
             }
-            Stmt::LoopControl { control, id } =&gt; {
+            Stmt::LoopControl { id, .. } =&gt; {
                 <span class="kw">if </span><span class="self">self</span>.loop_depth &gt; <span class="number">0 </span>{
-                    <span class="kw">match </span>control {
-                        LoopControl::Break =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-                        LoopControl::Continue =&gt; <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>),
-                    }
+                    <span class="prelude-val">Ok</span>(<span class="prelude-val">None</span>)
                 } <span class="kw">else </span>{
                     <span class="macro">msg!</span>(Msg::LoopReq, (<span class="self">self</span>.ranges, id))
                 }
@@ -803,24 +797,24 @@
             }
             Expr::TypeName { id, .. } =&gt; <span class="macro">msg!</span>(Msg::TypeEval, (<span class="self">self</span>.ranges, id)),
             Expr::TypeConversion { dtype, params, id } =&gt; {
-                <span class="kw">match </span>params.as_slice() {
-                    [to_convert] =&gt; {
-                        <span class="kw">let </span>original_type = <span class="self">self</span>.expr_type(to_convert)<span class="question-mark">?</span>;
-                        <span class="kw">match </span>(dtype, original_type) {
-                            (Type::Int, Type::Char) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
-                            (Type::Int, Type::Bool) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
-                            (Type::Int, Type::Float) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
-                            (Type::Float, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Float),
-                            (Type::Char, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Char),
-                            (Type::Bool, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Bool),
-                            <span class="comment">// note sure if in the spec, but this seems reasonable...
-                            </span>(a, b) <span class="kw">if </span>a == <span class="kw-2">&amp;</span>b =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>a),
-                            <span class="kw">_ </span>=&gt; <span class="macro">msg!</span>(Msg::TypeConvert, (<span class="self">self</span>.ranges, id)),
-                        }
+                <span class="kw">if let </span>[to_convert] = params.as_slice() {
+                    <span class="kw">let </span>original_type = <span class="self">self</span>.expr_type(to_convert)<span class="question-mark">?</span>;
+                    <span class="kw">match </span>(dtype, original_type) {
+                        (Type::Int, Type::Char)
+                        | (Type::Int, Type::Bool)
+                        | (Type::Int, Type::Float) =&gt; <span class="prelude-val">Ok</span>(Type::Int),
+                        (Type::Float, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Float),
+                        (Type::Char, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Char),
+                        (Type::Bool, Type::Int) =&gt; <span class="prelude-val">Ok</span>(Type::Bool),
+                        <span class="comment">// note sure if in the spec, but this seems reasonable...
+                        </span>(a, b) <span class="kw">if </span>a == <span class="kw-2">&amp;</span>b =&gt; <span class="prelude-val">Ok</span>(<span class="kw-2">*</span>a),
+                        <span class="kw">_ </span>=&gt; <span class="macro">msg!</span>(Msg::TypeConvert, (<span class="self">self</span>.ranges, id)),
                     }
-                    <span class="kw">_ </span>=&gt; <span class="macro">msg!</span>(Msg::ConvertAirty, (<span class="self">self</span>.ranges, id)),
+                } <span class="kw">else </span>{
+                    <span class="macro">msg!</span>(Msg::ConvertAirty, (<span class="self">self</span>.ranges, id))
                 }
             }
+
             Expr::Binary { lhs, op, rhs, id } =&gt; {
                 <span class="kw">let </span>lhs_type = <span class="self">self</span>.expr_type(lhs)<span class="question-mark">?</span>;
                 <span class="kw">let </span>rhs_type = <span class="self">self</span>.expr_type(rhs)<span class="question-mark">?</span>;

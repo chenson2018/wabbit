@@ -77,7 +77,7 @@
 /// use of WebAssembly as a compilation target
 </span><span class="attr">#[wasm_bindgen]
 </span><span class="kw">pub fn </span>wasm_interp(source: <span class="kw-2">&amp;</span>str) -&gt; String {
-    <span class="kw">let </span><span class="kw-2">mut </span>scanner = Scanner::new(source.to_string());
+    <span class="kw">let </span><span class="kw-2">mut </span>scanner = Scanner::new(source);
 
     <span class="comment">// doing simplified error reporting here...
     // this also has the terminal color codes in the error strings

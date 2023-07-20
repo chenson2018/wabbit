@@ -417,7 +417,7 @@
     }
 
     <span class="doccomment">/// initialize a new scanner
-    </span><span class="kw">pub fn </span>new(s: String) -&gt; Scanner {
+    </span><span class="kw">pub fn </span>new(s: <span class="kw-2">&amp;</span>str) -&gt; Scanner {
         Scanner {
             source: s.chars().collect::&lt;Vec&lt;char&gt;&gt;(),
             tokens: Vec::new(),
