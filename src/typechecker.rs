@@ -18,9 +18,7 @@ impl<'a> Typechecker<'a> {
         }
         Ok(())
     }
-}
 
-impl<'a> Analyzer<'a, Type> {
     /// typecheck a single statement
     pub(crate) fn typecheck_stmt(&mut self, stmt: &'a Stmt) -> Result<Option<Type>> {
         match stmt {
