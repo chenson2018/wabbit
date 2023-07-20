@@ -11,6 +11,7 @@
 #![feature(box_syntax)]
 #![feature(box_patterns)]
 #![feature(let_chains)]
+
 // roughly grouped by category
 #![allow(clippy::similar_names)]
 #![allow(clippy::module_name_repetitions)]
