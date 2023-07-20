@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Type","WabbitType"],"macro":["compare","equality","numeric_binary","numeric_unary"]};

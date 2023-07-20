@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"wabbit":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/error/trait.Error.html\" title=\"trait core::error::Error\">Error</a> for <a class=\"struct\" href=\"wabbit/error/struct.WabbitErrorReporter.html\" title=\"struct wabbit::error::WabbitErrorReporter\">WabbitErrorReporter</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Msg"],"macro":["err","msg"],"struct":["WabbitError","WabbitErrorReporter"],"trait":["RangeReporter"],"type":["Result","Results"]};

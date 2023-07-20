@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `RUNTIME` constant in crate `wabbit`."><title>RUNTIME in wabbit::llvm - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../../static.files/rustdoc-e5308b57e507db71.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../../static.files/light-d59023bfa12059d2.css"><link rel="stylesheet" disabled href="../../static.files/dark-1ca41bb1e10af075.css"><link rel="stylesheet" disabled href="../../static.files/ayu-18b4181a2f3fb862.css"><script src="../../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc constant"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../../wabbit/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../../wabbit/index.html"><img class="rust-logo" src="../../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><div class="sidebar-elems"><h2><a href="index.html">In wabbit::llvm</a></h2></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Constant <a href="../index.html">wabbit</a>::<wbr><a href="index.html">llvm</a>::<wbr><a class="constant" href="#">RUNTIME</a><button id="copy-path" title="Copy item path to clipboard"><img src="../../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../../src/wabbit/llvm.rs.html#27-85">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><pre class="rust item-decl"><code>const RUNTIME: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a> = r#&quot;
+@.str = private unnamed_addr constant [9 x i8] c&quot;Out: %i\0A\00&quot;, align 1
+@.str.1 = private unnamed_addr constant [10 x i8] c&quot;Out: %lf\0A\00&quot;, align 1
+@.str.2 = private unnamed_addr constant [11 x i8] c&quot;Out: true\0A\00&quot;, align 1
+@.str.3 = private unnamed_addr constant [12 x i8] c&quot;Out: false\0A\00&quot;, align 1
+@.str.4 = private unnamed_addr constant [3 x i8] c&quot;%c\00&quot;, align 1
+@stdout = external local_unnamed_addr global ptr, align 8
+
+; Function Attrs: nounwind sspstrong uwtable
+define void @_print_int(i32 noundef %0) local_unnamed_addr #0 {
+  %2 = tail call i32 (i32, ptr, ...) @__printf_chk(i32 noundef 1, ptr noundef nonnull @.str, i32 noundef %0) #3
+  ret void
+}
+
+declare i32 @__printf_chk(i32 noundef, ptr noundef, ...) local_unnamed_addr #1
+
+; Function Attrs: nounwind sspstrong uwtable
+define void @_print_float(double noundef %0) local_unnamed_addr #0 {
+  %2 = tail call i32 (i32, ptr, ...) @__printf_chk(i32 noundef 1, ptr noundef nonnull @.str.1, double noundef %0) #3
+  ret void
+}
+
+; Function Attrs: nounwind sspstrong uwtable
+define void @_print_bool(i32 noundef %0) local_unnamed_addr #0 {
+  %2 = icmp eq i32 %0, 0
+  %3 = select i1 %2, ptr @.str.3, ptr @.str.2
+  %4 = tail call i32 (i32, ptr, ...) @__printf_chk(i32 noundef 1, ptr noundef nonnull %3) #3
+  ret void
+}
+
+; Function Attrs: nounwind sspstrong uwtable
+define void @_print_char(i8 noundef signext %0) local_unnamed_addr #0 {
+  %2 = sext i8 %0 to i32
+  %3 = tail call i32 (i32, ptr, ...) @__printf_chk(i32 noundef 1, ptr noundef nonnull @.str.4, i32 noundef %2) #3
+  %4 = load ptr, ptr @stdout, align 8, !tbaa !4
+  %5 = tail call i32 @fflush(ptr noundef %4)
+  ret void
+}
+
+; Function Attrs: nofree nounwind
+declare noundef i32 @fflush(ptr nocapture noundef) local_unnamed_addr #2
+
+attributes #0 = { nounwind sspstrong uwtable &quot;frame-pointer&quot;=&quot;none&quot; &quot;min-legal-vector-width&quot;=&quot;0&quot; &quot;no-trapping-math&quot;=&quot;true&quot; &quot;stack-protector-buffer-size&quot;=&quot;4&quot; &quot;target-cpu&quot;=&quot;x86-64&quot; &quot;target-features&quot;=&quot;+cx8,+fxsr,+mmx,+sse,+sse2,+x87&quot; &quot;tune-cpu&quot;=&quot;generic&quot; }
+attributes #1 = { &quot;frame-pointer&quot;=&quot;none&quot; &quot;no-trapping-math&quot;=&quot;true&quot; &quot;stack-protector-buffer-size&quot;=&quot;4&quot; &quot;target-cpu&quot;=&quot;x86-64&quot; &quot;target-features&quot;=&quot;+cx8,+fxsr,+mmx,+sse,+sse2,+x87&quot; &quot;tune-cpu&quot;=&quot;generic&quot; }
+attributes #2 = { nofree nounwind &quot;frame-pointer&quot;=&quot;none&quot; &quot;no-trapping-math&quot;=&quot;true&quot; &quot;stack-protector-buffer-size&quot;=&quot;4&quot; &quot;target-cpu&quot;=&quot;x86-64&quot; &quot;target-features&quot;=&quot;+cx8,+fxsr,+mmx,+sse,+sse2,+x87&quot; &quot;tune-cpu&quot;=&quot;generic&quot; }
+attributes #3 = { nounwind }
+
+!llvm.module.flags = !{!0, !1, !2}
+!llvm.ident = !{!3}
+
+!0 = !{i32 1, !&quot;wchar_size&quot;, i32 4}
+!1 = !{i32 7, !&quot;PIC Level&quot;, i32 2}
+!2 = !{i32 7, !&quot;uwtable&quot;, i32 2}
+!3 = !{!&quot;clang version 15.0.7&quot;}
+!4 = !{!5, !5, i64 0}
+!5 = !{!&quot;any pointer&quot;, !6, i64 0}
+!6 = !{!&quot;omnipotent char&quot;, !7, i64 0}
+!7 = !{!&quot;Simple C/C++ TBAA&quot;}
+&quot;#;</code></pre></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wabbit" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (13471d3b2 2023-03-02)" data-search-js="search-2cde8914278f97ed.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
