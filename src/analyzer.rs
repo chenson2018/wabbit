@@ -38,7 +38,7 @@ impl RangeReporter for (&HashMap<usize, (usize, usize)>, &usize) {
         let (map, id) = self;
         match map.get(id) {
             Some(loc) => *loc,
-            None => panic!("Analyzer tried to report invalid location id {}.", id),
+            None => panic!("Analyzer tried to report invalid location id {id}."),
         }
     }
 }

@@ -59,11 +59,11 @@ impl From<i32> for WabbitType {
 impl Display for WabbitType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self {
-            Self::Bool(val) => write!(f, "{}", val),
-            Self::Int(val) => write!(f, "{}", val),
-            Self::Char(val) => write!(f, "{}", val),
-            Self::Float(val) => write!(f, "{}", val),
-            Self::TypeHolder(val) => write!(f, "{}", val),
+            Self::Bool(val) => write!(f, "{val}"),
+            Self::Int(val) => write!(f, "{val}"),
+            Self::Char(val) => write!(f, "{val}"),
+            Self::Float(val) => write!(f, "{val}"),
+            Self::TypeHolder(val) => write!(f, "{val}"),
         }
     }
 }

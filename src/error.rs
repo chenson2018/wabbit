@@ -27,7 +27,7 @@ impl WabbitError {
         S: Into<String> + std::fmt::Display,
     {
         Self {
-            label: format!("\x1b[31m{}\x1b[0m", label),
+            label: format!("\x1b[31m{label}\x1b[0m"),
             range,
         }
     }
@@ -87,7 +87,7 @@ impl Display for WabbitErrorReporter {
             },
         };
         let dl = DisplayList::from(snip);
-        write!(f, "{}", dl)
+        write!(f, "{dl}")
     }
 }
 

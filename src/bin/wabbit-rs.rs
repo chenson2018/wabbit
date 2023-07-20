@@ -73,7 +73,7 @@ fn main() -> Result<(), MainError> {
 
     if args.minimize {
         for stmt in parser.borrow_statements() {
-            println!("{}", stmt);
+            println!("{stmt}");
         }
     }
 
@@ -92,7 +92,7 @@ fn main() -> Result<(), MainError> {
         let llvm = codegen.llvm_codegen();
 
         if args.llvm_print {
-            println!("{}\n", llvm);
+            println!("{llvm}\n");
         }
         if args.llvm_exec {
             std::fs::write("./out.ll", llvm)?;

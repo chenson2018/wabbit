@@ -224,8 +224,8 @@ impl<'a> Interpreter<'a> {
             Stmt::Print { value, .. } => {
                 let value = self.evaluate(value)?;
                 match value {
-                    WabbitType::Char(_) => print!("{}", value),
-                    _ => println!("{}", value),
+                    WabbitType::Char(_) => print!("{value}"),
+                    _ => println!("{value}"),
                 };
                 self.output.push(value);
                 Ok(Signal::Unit)

@@ -275,25 +275,24 @@ impl<'a> CodegenLLVM<'a> {
 
                 // first the test label, check the condition
                 // we either jump to the body, or to the after
-                self.loc().push(format!("\tbr label %{}", test_label));
-                self.loc().push(format!("{}:", test_label));
+                self.loc().push(format!("\tbr label %{test_label}"));
+                self.loc().push(format!("{test_label}:"));
                 let cond_compile = self.llvm_expr(condition);
                 self.loc().push(format!(
-                    "\tbr i1 {}, label %{}, label %{}",
-                    cond_compile, body_label, after_label
+                    "\tbr i1 {cond_compile}, label %{body_label}, label %{after_label}"
                 ));
 
                 self.analyze.loop_depth += 1;
                 self.enter_child();
                 // now create the body, at the end of which we go back to the test
-                self.loc().push(format!("{}:", body_label));
+                self.loc().push(format!("{body_label}:"));
                 self.llvm_stmt(body);
-                self.loc().push(format!("\tbr label %{}", test_label));
+                self.loc().push(format!("\tbr label %{test_label}"));
                 self.analyze.loop_depth -= 1;
                 self.exit_child_unwrap();
 
                 // and lastly, the rest of the program
-                self.loc().push(format!("{}:", after_label));
+                self.loc().push(format!("{after_label}:"));
                 Signal::Unit
             }
             Stmt::If {
@@ -316,12 +315,11 @@ impl<'a> CodegenLLVM<'a> {
 
                     // the comparison, jumping to either then/else
                     self.loc().push(format!(
-                        "\tbr i1 {}, label %{}, label %{}",
-                        cond_compile, then_label, else_label
+                        "\tbr i1 {cond_compile}, label %{then_label}, label %{else_label}"
                     ));
 
                     // both blocks, after which they both go to the after label
-                    self.loc().push(format!("{}:", then_label));
+                    self.loc().push(format!("{then_label}:"));
                     self.enter_child();
                     let then_signal = self.llvm_stmt(then_block);
 
@@ -332,34 +330,33 @@ impl<'a> CodegenLLVM<'a> {
                     self.exit_child_unwrap();
 
                     if !has_return {
-                        self.loc().push(format!("\tbr label %{}", after_label));
+                        self.loc().push(format!("\tbr label %{after_label}"));
                     }
 
-                    self.loc().push(format!("{}:", else_label));
+                    self.loc().push(format!("{else_label}:"));
                     self.enter_child();
                     self.llvm_stmt(else_block);
 
                     if !has_return {
-                        self.loc().push(format!("\tbr label %{}", after_label));
+                        self.loc().push(format!("\tbr label %{after_label}"));
                     }
 
                     self.exit_child_unwrap();
                 } else {
                     // the comparison, jumping to after if false since no else
                     self.loc().push(format!(
-                        "\tbr i1 {}, label %{}, label %{}",
-                        cond_compile, then_label, after_label
+                        "\tbr i1 {cond_compile}, label %{then_label}, label %{after_label}"
                     ));
 
                     // just the then block
-                    self.loc().push(format!("{}:", then_label));
+                    self.loc().push(format!("{then_label}:"));
                     self.enter_child();
                     self.llvm_stmt(then_block);
                     self.exit_child_unwrap();
-                    self.loc().push(format!("\tbr label %{}", after_label));
+                    self.loc().push(format!("\tbr label %{after_label}"));
                 }
                 if !has_return {
-                    self.loc().push(format!("{}:", after_label));
+                    self.loc().push(format!("{after_label}:"));
                 }
                 Signal::Unit
             }
@@ -376,8 +373,7 @@ impl<'a> CodegenLLVM<'a> {
 
                 if self.global_vars.contains(&name_lookup) {
                     self.loc().push(format!(
-                        "\tstore {} {}, {}* @{}",
-                        llvm_type, compiled_value, llvm_type, name
+                        "\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}"
                     ));
                 } else {
                     // in case it was previously only declared
@@ -410,14 +406,13 @@ impl<'a> CodegenLLVM<'a> {
                     let tmp_name = self.tmp_name();
                     let llvm_type = dtype.llvm_type();
 
-                    args.push(format!("{} {}", llvm_type, tmp_name));
-                    queue.push(format!("\t%{} = alloca {}", name, llvm_type));
+                    args.push(format!("{llvm_type} {tmp_name}"));
+                    queue.push(format!("\t%{name} = alloca {llvm_type}"));
                     queue.push(format!(
-                        "\tstore {} {}, {}* %{}",
-                        llvm_type, tmp_name, llvm_type, name
+                        "\tstore {llvm_type} {tmp_name}, {llvm_type}* %{name}"
                     ));
 
-                    param_names.insert(name, VarStore::Init(format!("%{}", name)));
+                    param_names.insert(name, VarStore::Init(format!("%{name}")));
                     param_types.insert(name, VarStore::Init(*dtype));
                 }
 
@@ -462,7 +457,7 @@ impl<'a> CodegenLLVM<'a> {
                             } else {
                                 self.continue_labels.pop().unwrap()
                             };
-                            let jmp = format!("\tbr label %{}", label);
+                            let jmp = format!("\tbr label %{label}");
                             self.loc().push(jmp);
                             break;
                         }
@@ -481,7 +476,7 @@ impl<'a> CodegenLLVM<'a> {
                 let value_compile = self.llvm_expr(value);
                 let llvm_type = self.analyze.expr_type(value).unwrap().llvm_type();
                 self.loc()
-                    .push(format!("\tret {} {}", llvm_type, value_compile));
+                    .push(format!("\tret {llvm_type} {value_compile}"));
                 Signal::Return
             }
             Stmt::VarDef {
@@ -505,7 +500,7 @@ impl<'a> CodegenLLVM<'a> {
 
                 // the definition varies depending on the scope
                 if self.analyze.env.in_global_scope() {
-                    let fmt_name = format!("@{}", name);
+                    let fmt_name = format!("@{name}");
                     self.globals.push(format!(
                         "{} = global {} {}",
                         fmt_name,
@@ -516,7 +511,7 @@ impl<'a> CodegenLLVM<'a> {
                     self.var_names.define_init(name, fmt_name);
                 } else {
                     self.loc()
-                        .push(format!("\t{} = alloca {}", tmp_name, llvm_type));
+                        .push(format!("\t{tmp_name} = alloca {llvm_type}"));
                     self.var_names.define_init(name, tmp_name.clone());
                 };
 
@@ -526,13 +521,11 @@ impl<'a> CodegenLLVM<'a> {
 
                     if self.analyze.env.in_global_scope() {
                         self.loc().push(format!(
-                            "\tstore {} {}, {}* @{}",
-                            llvm_type, compiled_value, llvm_type, name
+                            "\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}"
                         ));
                     } else {
                         self.loc().push(format!(
-                            "\tstore {} {}, {}* {}",
-                            llvm_type, compiled_value, llvm_type, tmp_name,
+                            "\tstore {llvm_type} {compiled_value}, {llvm_type}* {tmp_name}",
                         ));
                     }
                 }
@@ -551,11 +544,10 @@ impl<'a> CodegenLLVM<'a> {
                 ));
                 self.global_vars.insert(name.to_string());
                 self.analyze.env.define_init(name, dtype);
-                self.var_names.define_init(name, format!("@{}", name));
+                self.var_names.define_init(name, format!("@{name}"));
                 self.analyze.constants.insert(name, dtype);
                 self.loc().push(format!(
-                    "\tstore {} {}, {}* @{}",
-                    llvm_type, compiled_value, llvm_type, name
+                    "\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}"
                 ));
                 Signal::Unit
             }
@@ -563,10 +555,10 @@ impl<'a> CodegenLLVM<'a> {
                 let dtype = self.analyze.expr_type(value).unwrap();
                 let to_print = self.llvm_expr(value);
                 let print = match dtype {
-                    Type::Int => format!("\tcall void @_print_int(i32 {})", to_print),
-                    Type::Float => format!("\tcall void @_print_float(double {})", to_print),
-                    Type::Char => format!("\tcall void @_print_char(i8 {})", to_print),
-                    Type::Bool => format!("\tcall void @_print_bool(i1 {})", to_print),
+                    Type::Int => format!("\tcall void @_print_int(i32 {to_print})"),
+                    Type::Float => format!("\tcall void @_print_float(double {to_print})"),
+                    Type::Char => format!("\tcall void @_print_char(i8 {to_print})"),
+                    Type::Bool => format!("\tcall void @_print_bool(i1 {to_print})"),
                 };
                 self.loc().push(print);
                 Signal::Unit
@@ -593,7 +585,7 @@ impl<'a> CodegenLLVM<'a> {
                     for (call_e, (_, param_type)) in std::iter::zip(params, def_params) {
                         let pname = self.llvm_expr(call_e);
                         let ptype = param_type.llvm_type();
-                        param_str.push(format!("{} {}", ptype, pname));
+                        param_str.push(format!("{ptype} {pname}"));
                     }
 
                     let tmp_name = self.tmp_name();
@@ -634,22 +626,22 @@ impl<'a> CodegenLLVM<'a> {
                 } else {
                     let ins = match (dtype, param_type) {
                         (Type::Int, Type::Char) => {
-                            format!("\t{} = zext i8 {} to i32", tmp_name, param_compile)
+                            format!("\t{tmp_name} = zext i8 {param_compile} to i32")
                         }
                         (Type::Int, Type::Bool) => {
-                            format!("\t{} = zext i1 {} to i32", tmp_name, param_compile)
+                            format!("\t{tmp_name} = zext i1 {param_compile} to i32")
                         }
                         (Type::Int, Type::Float) => {
-                            format!("\t{} = fptosi double {} to i32", tmp_name, param_compile)
+                            format!("\t{tmp_name} = fptosi double {param_compile} to i32")
                         }
                         (Type::Float, Type::Int) => {
-                            format!("\t{} = sitofp i32 {} to double", tmp_name, param_compile)
+                            format!("\t{tmp_name} = sitofp i32 {param_compile} to double")
                         }
                         (Type::Char, Type::Int) => {
-                            format!("\t{} = trunc i32 {} to i8", tmp_name, param_compile)
+                            format!("\t{tmp_name} = trunc i32 {param_compile} to i8")
                         }
                         (Type::Bool, Type::Int) => {
-                            format!("\t{} = trunc i32 {} to i1", tmp_name, param_compile)
+                            format!("\t{tmp_name} = trunc i32 {param_compile} to i1")
                         }
                         _ => panic!("typecheck failure"),
                     };
@@ -665,23 +657,21 @@ impl<'a> CodegenLLVM<'a> {
                 let after_label = self.label_name("after_logical");
 
                 let ins = match op {
-                    LogicalOp::LogicalOr => format!(
-                        "\tbr i1 {}, label %{}, label %{}",
-                        lhs_compile, after_label, rhs_label
-                    ),
-                    LogicalOp::LogicalAnd => format!(
-                        "\tbr i1 {}, label %{}, label %{}",
-                        lhs_compile, rhs_label, after_label
-                    ),
+                    LogicalOp::LogicalOr => {
+                        format!("\tbr i1 {lhs_compile}, label %{after_label}, label %{rhs_label}")
+                    }
+                    LogicalOp::LogicalAnd => {
+                        format!("\tbr i1 {lhs_compile}, label %{rhs_label}, label %{after_label}")
+                    }
                 };
 
                 self.loc().push(ins);
 
-                self.loc().push(format!("{}:", rhs_label));
+                self.loc().push(format!("{rhs_label}:"));
                 let rhs_compile = self.llvm_expr(rhs);
-                self.loc().push(format!("\tbr label %{}", after_label));
+                self.loc().push(format!("\tbr label %{after_label}"));
 
-                self.loc().push(format!("{}:", after_label));
+                self.loc().push(format!("{after_label}:"));
                 rhs_compile
             }
             Expr::Grouping { e, .. } => {
@@ -702,13 +692,13 @@ impl<'a> CodegenLLVM<'a> {
                 if op != &UnaryOp::Plus {
                     let ins = match (operand_type, op) {
                         (Type::Int, UnaryOp::Minus) => {
-                            format!("\t{} = mul i32 {}, -1", tmp_name, operand_compile)
+                            format!("\t{tmp_name} = mul i32 {operand_compile}, -1")
                         }
                         (Type::Float, UnaryOp::Minus) => {
-                            format!("\t{} = fneg double {}", tmp_name, operand_compile)
+                            format!("\t{tmp_name} = fneg double {operand_compile}")
                         }
                         (Type::Bool, UnaryOp::LogicalNot) => {
-                            format!("\t{} = icmp eq i1 {}, 0", tmp_name, operand_compile)
+                            format!("\t{tmp_name} = icmp eq i1 {operand_compile}, 0")
                         }
                         _ => panic!("typecheck failure"),
                     };
@@ -729,8 +719,7 @@ impl<'a> CodegenLLVM<'a> {
                 let op = self.binary_ops(&dtype, op);
 
                 self.loc().push(format!(
-                    "\t{} = {} {} {}, {}",
-                    tmp_name, op, llvm_type, lhs_compile, rhs_compile
+                    "\t{tmp_name} = {op} {llvm_type} {lhs_compile}, {rhs_compile}"
                 ));
                 tmp_name
             }

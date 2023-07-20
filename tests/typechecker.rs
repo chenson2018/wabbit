@@ -12,7 +12,7 @@ mod test {
     // hacky, but don't feel like dealing with the owneship issue for just these tests
     fn red(s: &str) -> std::borrow::Cow<str> {
         SimpleCurlyFormat
-            .format("{}{}{}", &[RED_FRONT, s, RED_BACK])
+            .format("{}{}{}", [RED_FRONT, s, RED_BACK])
             .expect("testing color error")
     }
 
@@ -287,7 +287,7 @@ mod test {
 
         for file in paths {
             let source = std::fs::read_to_string(file.unwrap().path()).unwrap();
-            println!("{}", source);
+            println!("{source}");
             let mut scanner = Scanner::new(source);
             scanner.scan().unwrap();
             let mut parser = Parser::from(&scanner);

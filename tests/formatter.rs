@@ -19,7 +19,7 @@ mod test {
                 "{}\n",
                 ast_from_og_source
                     .iter()
-                    .map(|x| format!("{}", x))
+                    .map(|x| format!("{x}"))
                     .collect::<Vec<String>>()
                     .join("\n")
             );
