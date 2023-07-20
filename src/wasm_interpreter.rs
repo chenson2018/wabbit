@@ -49,7 +49,7 @@ pub fn wasm_interp(source: &str) -> String {
     interpreter
         .output
         .iter()
-        .map(|x| x.to_string())
+        .map(std::string::ToString::to_string)
         .collect::<Vec<String>>()
         .join("\n")
 }
