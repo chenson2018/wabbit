@@ -176,9 +176,15 @@
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::fmt::Display;
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, Copy)]
+<span class="doccomment">/// Wabbit data types
+
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Copy)]
 </span><span class="kw">pub enum </span>Type {
     Int,
     Char,
@@ -197,7 +203,9 @@
     }
 }
 
-<span class="attr">#[derive(Debug, Clone, PartialEq, Copy)]
+<span class="doccomment">/// a Wabbit value, including Wabbit types
+
+</span><span class="attr">#[derive(Debug, Clone, PartialEq, Copy)]
 </span><span class="kw">pub enum </span>WabbitType {
     Int(i32),
     Float(f64),

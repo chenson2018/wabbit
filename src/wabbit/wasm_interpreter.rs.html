@@ -51,6 +51,11 @@
 <a href="#51" id="51">51</a>
 <a href="#52" id="52">52</a>
 <a href="#53" id="53">53</a>
+<a href="#54" id="54">54</a>
+<a href="#55" id="55">55</a>
+<a href="#56" id="56">56</a>
+<a href="#57" id="57">57</a>
+<a href="#58" id="58">58</a>
 </pre><pre class="rust"><code><span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
 
 <span class="kw">use </span><span class="kw">crate</span>::interpreter::Interpreter;
@@ -58,14 +63,19 @@
 <span class="kw">use </span><span class="kw">crate</span>::scanner::Scanner;
 <span class="kw">use </span><span class="kw">crate</span>::typechecker::Typechecker;
 
-<span class="comment">// Called when the wasm module is instantiated
-// Nothing here because I defined things in the HTML instead
+<span class="doccomment">/// entry point for WebAssembly interpreter
+///
+/// to view in your browser, run `wasm-pack build --target web` and then open [index.html](https://github.com/chenson2018/wabbit/blob/main/index.html)
 </span><span class="attr">#[wasm_bindgen(start)]
 </span><span class="kw">pub fn </span>wasm_entry() -&gt; <span class="prelude-ty">Result</span>&lt;(), JsValue&gt; {
     <span class="prelude-val">Ok</span>(())
 }
 
-<span class="attr">#[wasm_bindgen]
+<span class="doccomment">/// a Wabbit interpreter, exported to WebAssembly
+///
+/// note that this is the entire Rust implementation of the scanner, parser and interpreter, not a
+/// use of WebAssembly as a compilation target
+</span><span class="attr">#[wasm_bindgen]
 </span><span class="kw">pub fn </span>wasm_interp(source: <span class="kw-2">&amp;</span>str) -&gt; String {
     <span class="kw">let </span><span class="kw-2">mut </span>scanner = Scanner::new(source.to_string());
 

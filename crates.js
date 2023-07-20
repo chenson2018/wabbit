@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["wabbit"];
+window.ALL_CRATES = ["wabbit","wabbit_rs"];
