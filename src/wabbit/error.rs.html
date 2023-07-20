@@ -287,7 +287,7 @@
 }
 
 <span class="kw">impl </span>WabbitError {
-    <span class="kw">pub fn </span>new&lt;S&gt;(label: S, range: (usize, usize)) -&gt; <span class="self">Self
+    <span class="kw">pub fn </span>new&lt;S&gt;(label: <span class="kw-2">&amp;</span>S, range: (usize, usize)) -&gt; <span class="self">Self
     </span><span class="kw">where
         </span>S: Into&lt;String&gt; + std::fmt::Display,
     {
@@ -513,7 +513,7 @@
     (<span class="macro-nonterminal">$code</span>: expr, <span class="macro-nonterminal">$e</span>: expr $(, <span class="macro-nonterminal">$args</span>:expr)<span class="kw-2">*</span>) =&gt; {{
         <span class="kw">let </span>args: <span class="kw-2">&amp;</span>[String] = <span class="kw-2">&amp;</span>[ $(<span class="macro-nonterminal">$args</span>.to_string()),* ];
         <span class="kw">let </span>msg = &lt;dynfmt::SimpleCurlyFormat <span class="kw">as </span>dynfmt::Format&gt;::format(<span class="kw-2">&amp;</span>dynfmt::SimpleCurlyFormat, <span class="macro-nonterminal">$code</span>.msg(), args).expect(<span class="string">&quot;error formatting failed&quot;</span>);
-        <span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::WabbitError::new(msg, <span class="macro-nonterminal">$e</span>.extract_range()))
+        <span class="prelude-val">Err</span>(<span class="kw">crate</span>::error::WabbitError::new(<span class="kw-2">&amp;</span>msg, <span class="macro-nonterminal">$e</span>.extract_range()))
     }};
 }
 
@@ -522,7 +522,7 @@
     (<span class="macro-nonterminal">$code</span>: expr, <span class="macro-nonterminal">$e</span>: expr $(, <span class="macro-nonterminal">$args</span>:expr)<span class="kw-2">*</span>) =&gt; {{
         <span class="kw">let </span>args: <span class="kw-2">&amp;</span>[String] = <span class="kw-2">&amp;</span>[ $(<span class="macro-nonterminal">$args</span>.to_string()),* ];
         <span class="kw">let </span>msg = &lt;dynfmt::SimpleCurlyFormat <span class="kw">as </span>dynfmt::Format&gt;::format(<span class="kw-2">&amp;</span>dynfmt::SimpleCurlyFormat, <span class="macro-nonterminal">$code</span>.msg(), args).expect(<span class="string">&quot;error formatting failed&quot;</span>);
-        <span class="kw">crate</span>::error::WabbitError::new(msg, <span class="macro-nonterminal">$e</span>.extract_range())
+        <span class="kw">crate</span>::error::WabbitError::new(<span class="kw-2">&amp;</span>msg, <span class="macro-nonterminal">$e</span>.extract_range())
     }};
 }
 
