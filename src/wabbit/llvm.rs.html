@@ -864,7 +864,7 @@ attributes #3 = { nounwind }
                 );
                 hex
             }
-            <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;typecheck failure&quot;</span>),
+            WabbitType::TypeHolder(..) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;typecheck failure&quot;</span>),
         }
     }
 }
