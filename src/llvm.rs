@@ -139,7 +139,7 @@ impl WabbitType {
                 );
                 hex
             }
-            _ => panic!("typecheck failure"),
+            WabbitType::TypeHolder(..) => panic!("typecheck failure"),
         }
     }
 }
