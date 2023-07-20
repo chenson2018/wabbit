@@ -4,12 +4,7 @@ use std::process::Command;
 use clap::Parser as CliParser;
 use main_error::MainError;
 
-use wabbit::error::WabbitErrorReporter;
-use wabbit::interpreter::Interpreter;
-use wabbit::llvm::CodegenLLVM;
-use wabbit::parser::Parser;
-use wabbit::scanner::Scanner;
-use wabbit::typechecker::Typechecker;
+use wabbit::{CodegenLLVM, Interpreter, Parser, Scanner, Typechecker, WabbitErrorReporter};
 
 /// command-line options
 
