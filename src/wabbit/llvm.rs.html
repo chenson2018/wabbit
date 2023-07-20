@@ -726,17 +726,6 @@
 <a href="#726" id="726">726</a>
 <a href="#727" id="727">727</a>
 <a href="#728" id="728">728</a>
-<a href="#729" id="729">729</a>
-<a href="#730" id="730">730</a>
-<a href="#731" id="731">731</a>
-<a href="#732" id="732">732</a>
-<a href="#733" id="733">733</a>
-<a href="#734" id="734">734</a>
-<a href="#735" id="735">735</a>
-<a href="#736" id="736">736</a>
-<a href="#737" id="737">737</a>
-<a href="#738" id="738">738</a>
-<a href="#739" id="739">739</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::ast::{Expr, Stmt};
 <span class="kw">use </span><span class="kw">crate</span>::environment::Environment;
 <span class="kw">use </span><span class="kw">crate</span>::environment::VarStore;
@@ -1014,25 +1003,24 @@ attributes #3 = { nounwind }
 
                 <span class="comment">// first the test label, check the condition
                 // we either jump to the body, or to the after
-                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, test_label));
-                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, test_label));
+                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{test_label}&quot;</span>));
+                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{test_label}:&quot;</span>));
                 <span class="kw">let </span>cond_compile = <span class="self">self</span>.llvm_expr(condition);
                 <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                    <span class="string">&quot;\tbr i1 {}, label %{}, label %{}&quot;</span>,
-                    cond_compile, body_label, after_label
-                ));
+                    <span class="string">&quot;\tbr i1 {cond_compile}, label %{body_label}, label %{after_label}&quot;
+                </span>));
 
                 <span class="self">self</span>.analyze.loop_depth += <span class="number">1</span>;
                 <span class="self">self</span>.enter_child();
                 <span class="comment">// now create the body, at the end of which we go back to the test
-                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, body_label));
+                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{body_label}:&quot;</span>));
                 <span class="self">self</span>.llvm_stmt(body);
-                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, test_label));
+                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{test_label}&quot;</span>));
                 <span class="self">self</span>.analyze.loop_depth -= <span class="number">1</span>;
                 <span class="self">self</span>.exit_child_unwrap();
 
                 <span class="comment">// and lastly, the rest of the program
-                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, after_label));
+                </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{after_label}:&quot;</span>));
                 Signal::Unit
             }
             Stmt::If {
@@ -1055,12 +1043,11 @@ attributes #3 = { nounwind }
 
                     <span class="comment">// the comparison, jumping to either then/else
                     </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                        <span class="string">&quot;\tbr i1 {}, label %{}, label %{}&quot;</span>,
-                        cond_compile, then_label, else_label
-                    ));
+                        <span class="string">&quot;\tbr i1 {cond_compile}, label %{then_label}, label %{else_label}&quot;
+                    </span>));
 
                     <span class="comment">// both blocks, after which they both go to the after label
-                    </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, then_label));
+                    </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{then_label}:&quot;</span>));
                     <span class="self">self</span>.enter_child();
                     <span class="kw">let </span>then_signal = <span class="self">self</span>.llvm_stmt(then_block);
 
@@ -1071,34 +1058,33 @@ attributes #3 = { nounwind }
                     <span class="self">self</span>.exit_child_unwrap();
 
                     <span class="kw">if </span>!has_return {
-                        <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, after_label));
+                        <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{after_label}&quot;</span>));
                     }
 
-                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, else_label));
+                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{else_label}:&quot;</span>));
                     <span class="self">self</span>.enter_child();
                     <span class="self">self</span>.llvm_stmt(else_block);
 
                     <span class="kw">if </span>!has_return {
-                        <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, after_label));
+                        <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{after_label}&quot;</span>));
                     }
 
                     <span class="self">self</span>.exit_child_unwrap();
                 } <span class="kw">else </span>{
                     <span class="comment">// the comparison, jumping to after if false since no else
                     </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                        <span class="string">&quot;\tbr i1 {}, label %{}, label %{}&quot;</span>,
-                        cond_compile, then_label, after_label
-                    ));
+                        <span class="string">&quot;\tbr i1 {cond_compile}, label %{then_label}, label %{after_label}&quot;
+                    </span>));
 
                     <span class="comment">// just the then block
-                    </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, then_label));
+                    </span><span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{then_label}:&quot;</span>));
                     <span class="self">self</span>.enter_child();
                     <span class="self">self</span>.llvm_stmt(then_block);
                     <span class="self">self</span>.exit_child_unwrap();
-                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, after_label));
+                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{after_label}&quot;</span>));
                 }
                 <span class="kw">if </span>!has_return {
-                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, after_label));
+                    <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{after_label}:&quot;</span>));
                 }
                 Signal::Unit
             }
@@ -1115,9 +1101,8 @@ attributes #3 = { nounwind }
 
                 <span class="kw">if </span><span class="self">self</span>.global_vars.contains(<span class="kw-2">&amp;</span>name_lookup) {
                     <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                        <span class="string">&quot;\tstore {} {}, {}* @{}&quot;</span>,
-                        llvm_type, compiled_value, llvm_type, name
-                    ));
+                        <span class="string">&quot;\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}&quot;
+                    </span>));
                 } <span class="kw">else </span>{
                     <span class="comment">// in case it was previously only declared
                     </span><span class="self">self</span>.analyze.env.assign(name, dtype);
@@ -1149,14 +1134,13 @@ attributes #3 = { nounwind }
                     <span class="kw">let </span>tmp_name = <span class="self">self</span>.tmp_name();
                     <span class="kw">let </span>llvm_type = dtype.llvm_type();
 
-                    args.push(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, llvm_type, tmp_name));
-                    queue.push(<span class="macro">format!</span>(<span class="string">&quot;\t%{} = alloca {}&quot;</span>, name, llvm_type));
+                    args.push(<span class="macro">format!</span>(<span class="string">&quot;{llvm_type} {tmp_name}&quot;</span>));
+                    queue.push(<span class="macro">format!</span>(<span class="string">&quot;\t%{name} = alloca {llvm_type}&quot;</span>));
                     queue.push(<span class="macro">format!</span>(
-                        <span class="string">&quot;\tstore {} {}, {}* %{}&quot;</span>,
-                        llvm_type, tmp_name, llvm_type, name
-                    ));
+                        <span class="string">&quot;\tstore {llvm_type} {tmp_name}, {llvm_type}* %{name}&quot;
+                    </span>));
 
-                    param_names.insert(name, VarStore::Init(<span class="macro">format!</span>(<span class="string">&quot;%{}&quot;</span>, name)));
+                    param_names.insert(name, VarStore::Init(<span class="macro">format!</span>(<span class="string">&quot;%{name}&quot;</span>)));
                     param_types.insert(name, VarStore::Init(<span class="kw-2">*</span>dtype));
                 }
 
@@ -1201,7 +1185,7 @@ attributes #3 = { nounwind }
                             } <span class="kw">else </span>{
                                 <span class="self">self</span>.continue_labels.pop().unwrap()
                             };
-                            <span class="kw">let </span>jmp = <span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, label);
+                            <span class="kw">let </span>jmp = <span class="macro">format!</span>(<span class="string">&quot;\tbr label %{label}&quot;</span>);
                             <span class="self">self</span>.loc().push(jmp);
                             <span class="kw">break</span>;
                         }
@@ -1220,7 +1204,7 @@ attributes #3 = { nounwind }
                 <span class="kw">let </span>value_compile = <span class="self">self</span>.llvm_expr(value);
                 <span class="kw">let </span>llvm_type = <span class="self">self</span>.analyze.expr_type(value).unwrap().llvm_type();
                 <span class="self">self</span>.loc()
-                    .push(<span class="macro">format!</span>(<span class="string">&quot;\tret {} {}&quot;</span>, llvm_type, value_compile));
+                    .push(<span class="macro">format!</span>(<span class="string">&quot;\tret {llvm_type} {value_compile}&quot;</span>));
                 Signal::Return
             }
             Stmt::VarDef {
@@ -1244,7 +1228,7 @@ attributes #3 = { nounwind }
 
                 <span class="comment">// the definition varies depending on the scope
                 </span><span class="kw">if </span><span class="self">self</span>.analyze.env.in_global_scope() {
-                    <span class="kw">let </span>fmt_name = <span class="macro">format!</span>(<span class="string">&quot;@{}&quot;</span>, name);
+                    <span class="kw">let </span>fmt_name = <span class="macro">format!</span>(<span class="string">&quot;@{name}&quot;</span>);
                     <span class="self">self</span>.globals.push(<span class="macro">format!</span>(
                         <span class="string">&quot;{} = global {} {}&quot;</span>,
                         fmt_name,
@@ -1255,7 +1239,7 @@ attributes #3 = { nounwind }
                     <span class="self">self</span>.var_names.define_init(name, fmt_name);
                 } <span class="kw">else </span>{
                     <span class="self">self</span>.loc()
-                        .push(<span class="macro">format!</span>(<span class="string">&quot;\t{} = alloca {}&quot;</span>, tmp_name, llvm_type));
+                        .push(<span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = alloca {llvm_type}&quot;</span>));
                     <span class="self">self</span>.var_names.define_init(name, tmp_name.clone());
                 };
 
@@ -1265,13 +1249,11 @@ attributes #3 = { nounwind }
 
                     <span class="kw">if </span><span class="self">self</span>.analyze.env.in_global_scope() {
                         <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                            <span class="string">&quot;\tstore {} {}, {}* @{}&quot;</span>,
-                            llvm_type, compiled_value, llvm_type, name
-                        ));
+                            <span class="string">&quot;\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}&quot;
+                        </span>));
                     } <span class="kw">else </span>{
                         <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                            <span class="string">&quot;\tstore {} {}, {}* {}&quot;</span>,
-                            llvm_type, compiled_value, llvm_type, tmp_name,
+                            <span class="string">&quot;\tstore {llvm_type} {compiled_value}, {llvm_type}* {tmp_name}&quot;</span>,
                         ));
                     }
                 }
@@ -1290,22 +1272,21 @@ attributes #3 = { nounwind }
                 ));
                 <span class="self">self</span>.global_vars.insert(name.to_string());
                 <span class="self">self</span>.analyze.env.define_init(name, dtype);
-                <span class="self">self</span>.var_names.define_init(name, <span class="macro">format!</span>(<span class="string">&quot;@{}&quot;</span>, name));
+                <span class="self">self</span>.var_names.define_init(name, <span class="macro">format!</span>(<span class="string">&quot;@{name}&quot;</span>));
                 <span class="self">self</span>.analyze.constants.insert(name, dtype);
                 <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                    <span class="string">&quot;\tstore {} {}, {}* @{}&quot;</span>,
-                    llvm_type, compiled_value, llvm_type, name
-                ));
+                    <span class="string">&quot;\tstore {llvm_type} {compiled_value}, {llvm_type}* @{name}&quot;
+                </span>));
                 Signal::Unit
             }
             Stmt::Print { value, .. } =&gt; {
                 <span class="kw">let </span>dtype = <span class="self">self</span>.analyze.expr_type(value).unwrap();
                 <span class="kw">let </span>to_print = <span class="self">self</span>.llvm_expr(value);
                 <span class="kw">let </span>print = <span class="kw">match </span>dtype {
-                    Type::Int =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_int(i32 {})&quot;</span>, to_print),
-                    Type::Float =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_float(double {})&quot;</span>, to_print),
-                    Type::Char =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_char(i8 {})&quot;</span>, to_print),
-                    Type::Bool =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_bool(i1 {})&quot;</span>, to_print),
+                    Type::Int =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_int(i32 {to_print})&quot;</span>),
+                    Type::Float =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_float(double {to_print})&quot;</span>),
+                    Type::Char =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_char(i8 {to_print})&quot;</span>),
+                    Type::Bool =&gt; <span class="macro">format!</span>(<span class="string">&quot;\tcall void @_print_bool(i1 {to_print})&quot;</span>),
                 };
                 <span class="self">self</span>.loc().push(print);
                 Signal::Unit
@@ -1332,7 +1313,7 @@ attributes #3 = { nounwind }
                     <span class="kw">for </span>(call_e, (<span class="kw">_</span>, param_type)) <span class="kw">in </span>std::iter::zip(params, def_params) {
                         <span class="kw">let </span>pname = <span class="self">self</span>.llvm_expr(call_e);
                         <span class="kw">let </span>ptype = param_type.llvm_type();
-                        param_str.push(<span class="macro">format!</span>(<span class="string">&quot;{} {}&quot;</span>, ptype, pname));
+                        param_str.push(<span class="macro">format!</span>(<span class="string">&quot;{ptype} {pname}&quot;</span>));
                     }
 
                     <span class="kw">let </span>tmp_name = <span class="self">self</span>.tmp_name();
@@ -1373,22 +1354,22 @@ attributes #3 = { nounwind }
                 } <span class="kw">else </span>{
                     <span class="kw">let </span>ins = <span class="kw">match </span>(dtype, param_type) {
                         (Type::Int, Type::Char) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = zext i8 {} to i32&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = zext i8 {param_compile} to i32&quot;</span>)
                         }
                         (Type::Int, Type::Bool) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = zext i1 {} to i32&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = zext i1 {param_compile} to i32&quot;</span>)
                         }
                         (Type::Int, Type::Float) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = fptosi double {} to i32&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = fptosi double {param_compile} to i32&quot;</span>)
                         }
                         (Type::Float, Type::Int) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = sitofp i32 {} to double&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = sitofp i32 {param_compile} to double&quot;</span>)
                         }
                         (Type::Char, Type::Int) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = trunc i32 {} to i8&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = trunc i32 {param_compile} to i8&quot;</span>)
                         }
                         (Type::Bool, Type::Int) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = trunc i32 {} to i1&quot;</span>, tmp_name, param_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = trunc i32 {param_compile} to i1&quot;</span>)
                         }
                         <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;typecheck failure&quot;</span>),
                     };
@@ -1404,23 +1385,21 @@ attributes #3 = { nounwind }
                 <span class="kw">let </span>after_label = <span class="self">self</span>.label_name(<span class="string">&quot;after_logical&quot;</span>);
 
                 <span class="kw">let </span>ins = <span class="kw">match </span>op {
-                    LogicalOp::LogicalOr =&gt; <span class="macro">format!</span>(
-                        <span class="string">&quot;\tbr i1 {}, label %{}, label %{}&quot;</span>,
-                        lhs_compile, after_label, rhs_label
-                    ),
-                    LogicalOp::LogicalAnd =&gt; <span class="macro">format!</span>(
-                        <span class="string">&quot;\tbr i1 {}, label %{}, label %{}&quot;</span>,
-                        lhs_compile, rhs_label, after_label
-                    ),
+                    LogicalOp::LogicalOr =&gt; {
+                        <span class="macro">format!</span>(<span class="string">&quot;\tbr i1 {lhs_compile}, label %{after_label}, label %{rhs_label}&quot;</span>)
+                    }
+                    LogicalOp::LogicalAnd =&gt; {
+                        <span class="macro">format!</span>(<span class="string">&quot;\tbr i1 {lhs_compile}, label %{rhs_label}, label %{after_label}&quot;</span>)
+                    }
                 };
 
                 <span class="self">self</span>.loc().push(ins);
 
-                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, rhs_label));
+                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{rhs_label}:&quot;</span>));
                 <span class="kw">let </span>rhs_compile = <span class="self">self</span>.llvm_expr(rhs);
-                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{}&quot;</span>, after_label));
+                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;\tbr label %{after_label}&quot;</span>));
 
-                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{}:&quot;</span>, after_label));
+                <span class="self">self</span>.loc().push(<span class="macro">format!</span>(<span class="string">&quot;{after_label}:&quot;</span>));
                 rhs_compile
             }
             Expr::Grouping { e, .. } =&gt; {
@@ -1441,13 +1420,13 @@ attributes #3 = { nounwind }
                 </span><span class="kw">if </span>op != <span class="kw-2">&amp;</span>UnaryOp::Plus {
                     <span class="kw">let </span>ins = <span class="kw">match </span>(operand_type, op) {
                         (Type::Int, UnaryOp::Minus) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = mul i32 {}, -1&quot;</span>, tmp_name, operand_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = mul i32 {operand_compile}, -1&quot;</span>)
                         }
                         (Type::Float, UnaryOp::Minus) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = fneg double {}&quot;</span>, tmp_name, operand_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = fneg double {operand_compile}&quot;</span>)
                         }
                         (Type::Bool, UnaryOp::LogicalNot) =&gt; {
-                            <span class="macro">format!</span>(<span class="string">&quot;\t{} = icmp eq i1 {}, 0&quot;</span>, tmp_name, operand_compile)
+                            <span class="macro">format!</span>(<span class="string">&quot;\t{tmp_name} = icmp eq i1 {operand_compile}, 0&quot;</span>)
                         }
                         <span class="kw">_ </span>=&gt; <span class="macro">panic!</span>(<span class="string">&quot;typecheck failure&quot;</span>),
                     };
@@ -1468,9 +1447,8 @@ attributes #3 = { nounwind }
                 <span class="kw">let </span>op = <span class="self">self</span>.binary_ops(<span class="kw-2">&amp;</span>dtype, op);
 
                 <span class="self">self</span>.loc().push(<span class="macro">format!</span>(
-                    <span class="string">&quot;\t{} = {} {} {}, {}&quot;</span>,
-                    tmp_name, op, llvm_type, lhs_compile, rhs_compile
-                ));
+                    <span class="string">&quot;\t{tmp_name} = {op} {llvm_type} {lhs_compile}, {rhs_compile}&quot;
+                </span>));
                 tmp_name
             }
         }

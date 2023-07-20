@@ -196,17 +196,17 @@
 <span class="kw">impl </span>Display <span class="kw">for </span>Stmt {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>std::fmt::Formatter&lt;<span class="lifetime">&#39;_</span>&gt;) -&gt; std::fmt::Result {
         <span class="kw">match </span><span class="self">self </span>{
-            Stmt::Print { value, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;print {};&quot;</span>, value),
+            Stmt::Print { value, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;print {value};&quot;</span>),
             Stmt::While {
                 condition, body, ..
             } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;while {}{{&quot;</span>, condition)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, body)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;while {condition}{{&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{body}&quot;</span>)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;}}&quot;</span>)
             }
             Stmt::Block { statements, .. } =&gt; {
                 <span class="kw">for </span>stmt <span class="kw">in </span>statements {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, stmt)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">&quot;{stmt}&quot;</span>)<span class="question-mark">?</span>;
                 }
                 <span class="prelude-val">Ok</span>(())
             }
@@ -216,18 +216,18 @@
                 maybe_else_block,
                 ..
             } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;if {}{{&quot;</span>, condition)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, then_block)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;if {condition}{{&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{then_block}&quot;</span>)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;}}&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(else_block) = maybe_else_block {
                     <span class="macro">write!</span>(f, <span class="string">&quot;else {{&quot;</span>)<span class="question-mark">?</span>;
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, else_block)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">&quot;{else_block}&quot;</span>)<span class="question-mark">?</span>;
                     <span class="macro">write!</span>(f, <span class="string">&quot;}}&quot;</span>)<span class="question-mark">?</span>;
                 }
                 <span class="prelude-val">Ok</span>(())
             }
             Stmt::Expr(e) =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{};&quot;</span>, e)
+                <span class="macro">write!</span>(f, <span class="string">&quot;{e};&quot;</span>)
             }
             Stmt::LoopControl { control, .. } =&gt; <span class="kw">match </span>control {
                 LoopControl::Break =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;break;&quot;</span>),
@@ -240,17 +240,17 @@
                 body,
                 ..
             } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;func {}(&quot;</span>, def_name)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;func {def_name}(&quot;</span>)<span class="question-mark">?</span>;
                 <span class="kw">let </span>airty = def_params.len();
 
                 <span class="kw">for </span>(i, (name, typename)) <span class="kw">in </span>def_params.iter().enumerate() {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{} {}&quot;</span>, name, typename)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">&quot;{name} {typename}&quot;</span>)<span class="question-mark">?</span>;
                     <span class="kw">if </span>i != airty - <span class="number">1 </span>{
                         <span class="macro">write!</span>(f, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
                     }
                 }
-                <span class="macro">write!</span>(f, <span class="string">&quot;){}{{&quot;</span>, return_type)<span class="question-mark">?</span>;
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, body)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;){return_type}{{&quot;</span>)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{body}&quot;</span>)<span class="question-mark">?</span>;
                 <span class="macro">write!</span>(f, <span class="string">&quot;}}&quot;</span>)
             }
             Stmt::VarDef {
@@ -260,13 +260,13 @@
                 ..
             } =&gt; <span class="kw">match </span>(maybe_type, maybe_value) {
                 (<span class="prelude-val">Some</span>(typename), <span class="prelude-val">Some</span>(value)) =&gt; {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;var {} {}={};&quot;</span>, name, typename, value)
+                    <span class="macro">write!</span>(f, <span class="string">&quot;var {name} {typename}={value};&quot;</span>)
                 }
                 (<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(value)) =&gt; {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;var {}={};&quot;</span>, name, value)
+                    <span class="macro">write!</span>(f, <span class="string">&quot;var {name}={value};&quot;</span>)
                 }
                 (<span class="prelude-val">Some</span>(typename), <span class="prelude-val">None</span>) =&gt; {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;var {} {};&quot;</span>, name, typename)
+                    <span class="macro">write!</span>(f, <span class="string">&quot;var {name} {typename};&quot;</span>)
                 }
                 (<span class="prelude-val">None</span>, <span class="prelude-val">None</span>) =&gt; <span class="macro">panic!</span>(),
             },
@@ -277,16 +277,16 @@
                 ..
             } =&gt; {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(typename) = maybe_type {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;const {} {}={};&quot;</span>, name, typename, value)
+                    <span class="macro">write!</span>(f, <span class="string">&quot;const {name} {typename}={value};&quot;</span>)
                 } <span class="kw">else </span>{
-                    <span class="macro">write!</span>(f, <span class="string">&quot;const {}={};&quot;</span>, name, value)
+                    <span class="macro">write!</span>(f, <span class="string">&quot;const {name}={value};&quot;</span>)
                 }
             }
             Stmt::Return { value, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;return {};&quot;</span>, value)
+                <span class="macro">write!</span>(f, <span class="string">&quot;return {value};&quot;</span>)
             }
             Stmt::Assign { name, value, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}={};&quot;</span>, name, value)
+                <span class="macro">write!</span>(f, <span class="string">&quot;{name}={value};&quot;</span>)
             }
         }
     }
@@ -297,26 +297,26 @@
         <span class="kw">match </span><span class="self">self </span>{
             Expr::Literal { value, .. } =&gt; <span class="kw">match </span>value {
                 WabbitType::Char(c) <span class="kw">if </span>c == <span class="kw-2">&amp;</span><span class="string">&#39;\n&#39; </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;\\n&#39;&quot;</span>),
-                WabbitType::Char(c) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{}&#39;&quot;</span>, c),
-                WabbitType::Float(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{:.32}&quot;</span>, x),
-                <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, value),
+                WabbitType::Char(c) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;&#39;{c}&#39;&quot;</span>),
+                WabbitType::Float(x) =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{x:.32}&quot;</span>),
+                <span class="kw">_ </span>=&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{value}&quot;</span>),
             },
             Expr::Logical { lhs, op, rhs, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}{}{}&quot;</span>, lhs, op, rhs)
+                <span class="macro">write!</span>(f, <span class="string">&quot;{lhs}{op}{rhs}&quot;</span>)
             }
             Expr::Unary { op, operand, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}{}&quot;</span>, op, operand)
+                <span class="macro">write!</span>(f, <span class="string">&quot;{op}{operand}&quot;</span>)
             }
             Expr::Binary { lhs, op, rhs, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}{}{}&quot;</span>, lhs, op, rhs)
+                <span class="macro">write!</span>(f, <span class="string">&quot;{lhs}{op}{rhs}&quot;</span>)
             }
             Expr::Call { name, params, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}(&quot;</span>, name)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{name}(&quot;</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span>airty = params.len();
 
                 <span class="kw">for </span>(i, e) <span class="kw">in </span>params.iter().enumerate() {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, e)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">&quot;{e}&quot;</span>)<span class="question-mark">?</span>;
                     <span class="kw">if </span>i != airty - <span class="number">1 </span>{
                         <span class="macro">write!</span>(f, <span class="string">&quot;,&quot;</span>)<span class="question-mark">?</span>;
                     }
@@ -324,21 +324,21 @@
                 <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
             }
             Expr::TypeConversion { dtype, params, .. } =&gt; {
-                <span class="macro">write!</span>(f, <span class="string">&quot;{}(&quot;</span>, dtype)<span class="question-mark">?</span>;
+                <span class="macro">write!</span>(f, <span class="string">&quot;{dtype}(&quot;</span>)<span class="question-mark">?</span>;
 
                 <span class="kw">let </span>airty = params.len();
 
                 <span class="kw">for </span>(i, e) <span class="kw">in </span>params.iter().enumerate() {
-                    <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, e)<span class="question-mark">?</span>;
+                    <span class="macro">write!</span>(f, <span class="string">&quot;{e}&quot;</span>)<span class="question-mark">?</span>;
                     <span class="kw">if </span>i != airty - <span class="number">1 </span>{
                         <span class="macro">write!</span>(f, <span class="string">&quot;, &quot;</span>)<span class="question-mark">?</span>;
                     }
                 }
                 <span class="macro">write!</span>(f, <span class="string">&quot;)&quot;</span>)
             }
-            Expr::VarName { name, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, name),
-            Expr::TypeName { dtype, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, dtype),
-            Expr::Grouping { e, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;({})&quot;</span>, e),
+            Expr::VarName { name, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{name}&quot;</span>),
+            Expr::TypeName { dtype, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;{dtype}&quot;</span>),
+            Expr::Grouping { e, .. } =&gt; <span class="macro">write!</span>(f, <span class="string">&quot;({e})&quot;</span>),
         }
     }
 }

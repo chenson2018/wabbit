@@ -292,7 +292,7 @@
         </span>S: Into&lt;String&gt; + std::fmt::Display,
     {
         <span class="self">Self </span>{
-            label: <span class="macro">format!</span>(<span class="string">&quot;\x1b[31m{}\x1b[0m&quot;</span>, label),
+            label: <span class="macro">format!</span>(<span class="string">&quot;\x1b[31m{label}\x1b[0m&quot;</span>),
             range,
         }
     }
@@ -352,7 +352,7 @@
             },
         };
         <span class="kw">let </span>dl = DisplayList::from(snip);
-        <span class="macro">write!</span>(f, <span class="string">&quot;{}&quot;</span>, dl)
+        <span class="macro">write!</span>(f, <span class="string">&quot;{dl}&quot;</span>)
     }
 }
 

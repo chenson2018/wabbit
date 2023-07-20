@@ -195,7 +195,7 @@
 
     <span class="kw">if </span>args.minimize {
         <span class="kw">for </span>stmt <span class="kw">in </span>parser.borrow_statements() {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, stmt);
+            <span class="macro">println!</span>(<span class="string">&quot;{stmt}&quot;</span>);
         }
     }
 
@@ -214,7 +214,7 @@
         <span class="kw">let </span>llvm = codegen.llvm_codegen();
 
         <span class="kw">if </span>args.llvm_print {
-            <span class="macro">println!</span>(<span class="string">&quot;{}\n&quot;</span>, llvm);
+            <span class="macro">println!</span>(<span class="string">&quot;{llvm}\n&quot;</span>);
         }
         <span class="kw">if </span>args.llvm_exec {
             std::fs::write(<span class="string">&quot;./out.ll&quot;</span>, llvm)<span class="question-mark">?</span>;
