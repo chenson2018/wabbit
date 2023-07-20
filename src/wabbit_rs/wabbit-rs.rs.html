@@ -120,8 +120,6 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::path::PathBuf;
 <span class="kw">use </span>std::process::Command;
 
@@ -226,10 +224,8 @@
                 <span class="kw">let </span>output = Command::new(<span class="string">&quot;./a.out&quot;</span>).output()<span class="question-mark">?</span>;
                 <span class="macro">print!</span>(<span class="string">&quot;{}&quot;</span>, std::str::from_utf8(<span class="kw-2">&amp;</span>output.stdout)<span class="question-mark">?</span>);
                 std::fs::remove_file(<span class="string">&quot;./a.out&quot;</span>)<span class="question-mark">?</span>;
-                std::fs::remove_file(<span class="string">&quot;./out.ll&quot;</span>)<span class="question-mark">?</span>;
-            } <span class="kw">else </span>{
-                std::fs::remove_file(<span class="string">&quot;./out.ll&quot;</span>)<span class="question-mark">?</span>;
             }
+            std::fs::remove_file(<span class="string">&quot;./out.ll&quot;</span>)<span class="question-mark">?</span>;
         };
     }
 
