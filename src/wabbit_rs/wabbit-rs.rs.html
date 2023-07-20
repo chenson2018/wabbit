@@ -129,8 +129,8 @@
 <span class="kw">use </span>wabbit::{CodegenLLVM, Interpreter, Parser, Scanner, Typechecker, WabbitErrorReporter};
 
 <span class="doccomment">/// command-line options
-
-</span><span class="attr">#[derive(CliParser, Debug)]
+</span><span class="attr">#[allow(clippy::struct_excessive_bools)]
+#[derive(CliParser, Debug)]
 </span><span class="kw">pub struct </span>Cli {
     <span class="doccomment">/// option to print tokens
     </span><span class="attr">#[arg(short, long)]
