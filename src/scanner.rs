@@ -104,6 +104,7 @@ impl Scanner {
         self.source[self.current - 1]
     }
 
+    /// get the current range of token characters as a string
     fn lexeme(&self) -> String {
         self.source[self.start..self.current]
             .iter()
