@@ -326,6 +326,7 @@
 <a href="#326" id="326">326</a>
 <a href="#327" id="327">327</a>
 <a href="#328" id="328">328</a>
+<a href="#329" id="329">329</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::error::{err, msg, Msg, RangeReporter, <span class="prelude-ty">Result</span>, Results};
 <span class="kw">use </span><span class="kw">crate</span>::tokens::{Token, TokenType};
 <span class="kw">use </span><span class="kw">crate</span>::types::WabbitType;
@@ -432,7 +433,8 @@
         <span class="self">self</span>.source[<span class="self">self</span>.current - <span class="number">1</span>]
     }
 
-    <span class="kw">fn </span>lexeme(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
+    <span class="doccomment">/// get the current range of token characters as a string
+    </span><span class="kw">fn </span>lexeme(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; String {
         <span class="self">self</span>.source[<span class="self">self</span>.start..<span class="self">self</span>.current]
             .iter()
             .collect::&lt;String&gt;()
