@@ -102,7 +102,7 @@ fn main() -> Result<(), MainError> {
                 let output = Command::new("./a.out").output()?;
                 print!("{}", std::str::from_utf8(&output.stdout)?);
                 std::fs::remove_file("./a.out")?;
-            } 
+            }
             std::fs::remove_file("./out.ll")?;
         };
     }
