@@ -150,8 +150,8 @@ mod test {
             WabbitType::from(720),
             WabbitType::from(5040),
             WabbitType::from(40320),
-            WabbitType::from(362880),
-            WabbitType::from(3628800),
+            WabbitType::from(362_880),
+            WabbitType::from(3_628_800),
         ];
         expect_io("./program_examples/12_loop.wb", expected)
     }
@@ -247,11 +247,11 @@ mod test {
             WabbitType::from(28657),
             WabbitType::from(46368),
             WabbitType::from(75025),
-            WabbitType::from(121393),
-            WabbitType::from(196418),
-            WabbitType::from(317811),
-            WabbitType::from(514229),
-            WabbitType::from(832040),
+            WabbitType::from(121_393),
+            WabbitType::from(196_418),
+            WabbitType::from(317_811),
+            WabbitType::from(514_229),
+            WabbitType::from(832_040),
         ];
         expect_io("./program_examples/22_fib.wb", expected)
     }

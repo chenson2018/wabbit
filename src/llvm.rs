@@ -379,12 +379,9 @@ impl<'a> CodegenLLVM<'a> {
                     // in case it was previously only declared
                     self.analyze.env.assign(name, dtype);
                     let name = self.var_names.get(name).unwrap().clone_store();
+                    let llvm_type = dtype.llvm_type();
                     self.loc().push(format!(
-                        "\tstore {} {}, {}* {}",
-                        dtype.llvm_type(),
-                        compiled_value,
-                        dtype.llvm_type(),
-                        name
+                        "\tstore {llvm_type} {compiled_value}, {llvm_type}* {name}"
                     ));
                 }
                 Signal::Unit
@@ -416,12 +413,10 @@ impl<'a> CodegenLLVM<'a> {
                     param_types.insert(name, VarStore::Init(*dtype));
                 }
 
-                self.func_llvm.push(format!(
-                    "\ndefine {} @{} ({})\n{{",
-                    return_type,
-                    def_name,
-                    args.join(", ")
-                ));
+                let args = args.join(", ");
+
+                self.func_llvm
+                    .push(format!("\ndefine {return_type} @{def_name} ({args})\n{{"));
 
                 for item in queue {
                     self.func_llvm.push(item);
@@ -501,12 +496,9 @@ impl<'a> CodegenLLVM<'a> {
                 // the definition varies depending on the scope
                 if self.analyze.env.in_global_scope() {
                     let fmt_name = format!("@{name}");
-                    self.globals.push(format!(
-                        "{} = global {} {}",
-                        fmt_name,
-                        llvm_type,
-                        dtype.global_init()
-                    ));
+                    let init = dtype.global_init();
+                    self.globals
+                        .push(format!("{fmt_name} = global {llvm_type} {init}"));
                     self.global_vars.insert(fmt_name.clone());
                     self.var_names.define_init(name, fmt_name);
                 } else {
@@ -536,12 +528,9 @@ impl<'a> CodegenLLVM<'a> {
                 let dtype = self.analyze.expr_type(value).expect("typechecking failure");
                 let llvm_type = dtype.llvm_type();
                 let compiled_value = self.llvm_expr(value);
-                self.globals.push(format!(
-                    "@{} = global {} {}",
-                    name,
-                    llvm_type,
-                    dtype.global_init()
-                ));
+                let init = dtype.global_init();
+                self.globals
+                    .push(format!("@{name} = global {llvm_type} {init}"));
                 self.global_vars.insert(name.to_string());
                 self.analyze.env.define_init(name, dtype);
                 self.var_names.define_init(name, format!("@{name}"));
@@ -553,12 +542,12 @@ impl<'a> CodegenLLVM<'a> {
             }
             Stmt::Print { value, .. } => {
                 let dtype = self.analyze.expr_type(value).unwrap();
-                let to_print = self.llvm_expr(value);
+                let print_arg = self.llvm_expr(value);
                 let print = match dtype {
-                    Type::Int => format!("\tcall void @_print_int(i32 {to_print})"),
-                    Type::Float => format!("\tcall void @_print_float(double {to_print})"),
-                    Type::Char => format!("\tcall void @_print_char(i8 {to_print})"),
-                    Type::Bool => format!("\tcall void @_print_bool(i1 {to_print})"),
+                    Type::Int => format!("\tcall void @_print_int(i32 {print_arg})"),
+                    Type::Float => format!("\tcall void @_print_float(double {print_arg})"),
+                    Type::Char => format!("\tcall void @_print_char(i8 {print_arg})"),
+                    Type::Bool => format!("\tcall void @_print_bool(i1 {print_arg})"),
                 };
                 self.loc().push(print);
                 Signal::Unit
@@ -589,12 +578,9 @@ impl<'a> CodegenLLVM<'a> {
                     }
 
                     let tmp_name = self.tmp_name();
+                    let param_str = param_str.join(", ");
                     self.loc().push(format!(
-                        "\t{} = call {} @{}({})",
-                        tmp_name,
-                        llvm_return_type,
-                        name,
-                        param_str.join(", ")
+                        "\t{tmp_name} = call {llvm_return_type} @{name}({param_str})"
                     ));
                     tmp_name
                 } else {
@@ -605,13 +591,10 @@ impl<'a> CodegenLLVM<'a> {
                 let dtype = self.analyze.expr_type(e).unwrap();
                 let name = self.var_names.get(name).unwrap().clone_store();
                 let tmp_name = self.tmp_name();
+                let llvm_type = dtype.llvm_type();
 
                 self.loc().push(format!(
-                    "\t{} = load {}, {}* {}",
-                    tmp_name,
-                    dtype.llvm_type(),
-                    dtype.llvm_type(),
-                    name
+                    "\t{tmp_name} = load {llvm_type}, {llvm_type}* {name}"
                 ));
                 tmp_name
             }
