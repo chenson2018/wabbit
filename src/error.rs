@@ -12,9 +12,12 @@ use annotate_snippets::{
 pub type Result<T> = std::result::Result<T, WabbitError>;
 pub type Results<T> = std::result::Result<T, Vec<WabbitError>>;
 
+/// an error, pointing to source code indices
 #[derive(Debug, Clone)]
 pub struct WabbitError {
+    /// error text
     pub label: String,
+    /// source code indices
     range: (usize, usize),
 }
 
@@ -30,11 +33,16 @@ impl WabbitError {
     }
 }
 
+/// struct for reporting multiple errors
 #[derive(Debug, Clone)]
 pub struct WabbitErrorReporter {
+    /// vector of errors
     errors: Vec<WabbitError>,
+    /// path to source file
     path: PathBuf,
+    /// raw source code string
     source: String,
+    /// stage at which error occurred
     title: String,
 }
 
@@ -85,9 +93,15 @@ impl Display for WabbitErrorReporter {
 
 impl Error for WabbitErrorReporter {}
 
+/// trait for reporting the left and right source indices of an error
+///
+/// This trait is quite versatile, allowing error reporting from tokens, expressions,
+/// parsers, typecheckers, and interpreters
 pub trait RangeReporter {
+    /// extract tokens from a general type
     fn extract_tokens<'a>(&'a self, output: &mut Vec<&'a Token>);
 
+    /// use `extract_tokens` to get tokens, then find the left and right edge
     fn extract_range(&self) -> (usize, usize) {
         let mut tokens = Vec::new();
         self.extract_tokens(&mut tokens);
@@ -107,7 +121,9 @@ pub trait RangeReporter {
     }
 }
 
-// this assumes that we given the tokens in the correct order!
+/// convenience implementation for a pair of tokens/expressions/statements
+///
+/// this assumes that we are given items in order from left to right
 
 impl<L, R> RangeReporter for (L, R)
 where
@@ -123,6 +139,12 @@ where
         (left, right)
     }
 }
+
+/// collection of various errors that could be raised by an ill-formed Wabbit program
+///
+/// the one exception to this is `Msg::InternalErr`, which reports a failure of the crate itself
+///
+/// see [Msg::msg] for the messages presented to the user
 
 pub enum Msg {
     // Scanner
@@ -170,6 +192,7 @@ pub enum Msg {
 }
 
 impl Msg {
+    /// an error message template
     pub fn msg(&self) -> &'static str {
         match self {
             // Scanner
@@ -220,6 +243,7 @@ impl Msg {
     }
 }
 
+/// convenience macro for raising errors
 macro_rules! msg {
     ($code: expr, $e: expr $(, $args:expr)*) => {{
         let args: &[String] = &[ $($args.to_string()),* ];
@@ -228,6 +252,7 @@ macro_rules! msg {
     }};
 }
 
+/// convenience macro for construction of a WabbitError
 macro_rules! err {
     ($code: expr, $e: expr $(, $args:expr)*) => {{
         let args: &[String] = &[ $($args.to_string()),* ];

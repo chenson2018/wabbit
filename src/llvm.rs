@@ -1,9 +1,9 @@
-use crate::analyzer::Analyzer;
 use crate::ast::{Expr, Stmt};
 use crate::environment::Environment;
 use crate::environment::VarStore;
 use crate::operators::{BinaryOp, LogicalOp, LoopControl, UnaryOp};
 use crate::parser::Parser;
+use crate::typechecker::Typechecker;
 use crate::types::Type;
 use crate::WabbitType;
 use std::collections::{HashMap, HashSet};
@@ -85,21 +85,30 @@ attributes #3 = { nounwind }
 "#;
 
 pub struct CodegenLLVM<'a> {
-    analyze: Analyzer<'a, Type>,
+    /// a typechecker
+    analyze: Typechecker<'a>,
+    /// used to generate unique names
     counter: usize,
+    /// stack of labels that a continue statement could jump to
     continue_labels: Vec<String>,
+    /// stack of labels that a break statement could jump to
     break_labels: Vec<String>,
+    /// map of Wabbit variable names to LLVM variable names
     var_names: Environment<'a, String>,
-    globals: Vec<String>,
-    main: Vec<String>,
-    func_llvm: Vec<String>,
+    /// set of LLVM globals, for any variable defined in global scope
     global_vars: HashSet<String>,
+    /// raw LLVM strings in the global space
+    globals: Vec<String>,
+    /// raw LLVM strings in the main function
+    main: Vec<String>,
+    /// raw LLVM strings for functions
+    func_llvm: Vec<String>,
 }
 
 impl<'a> From<&'a Parser<'a>> for CodegenLLVM<'a> {
     fn from(parser: &'a Parser) -> Self {
         Self {
-            analyze: Analyzer::from(parser),
+            analyze: Typechecker::from(parser),
             counter: 0,
             continue_labels: Vec::new(),
             break_labels: Vec::new(),
@@ -115,6 +124,7 @@ impl<'a> From<&'a Parser<'a>> for CodegenLLVM<'a> {
 // some implementations to convert values/types to LLVM
 
 impl WabbitType {
+    /// transform a Wabbit value into an LLVM string
     pub fn llvm_value(&self) -> String {
         match self {
             WabbitType::Int(val) => val.to_string(),
@@ -135,6 +145,7 @@ impl WabbitType {
 }
 
 impl Type {
+    /// transform a type into an LLVM string for zero
     pub fn global_init(&self) -> String {
         match self {
             Type::Int | Type::Bool | Type::Char => "0".to_string(),
@@ -142,6 +153,7 @@ impl Type {
         }
     }
 
+    /// transform a Wabbit type into an LLVM string
     pub fn llvm_type(&self) -> String {
         match self {
             Type::Int => "i32".to_string(),
@@ -153,6 +165,7 @@ impl Type {
 }
 
 impl<'a> CodegenLLVM<'a> {
+    /// transform AST into LLVM IR
     pub fn llvm_codegen(&mut self) -> String {
         for stmt in self.analyze.statements {
             self.llvm_stmt(stmt);
@@ -171,22 +184,28 @@ impl<'a> CodegenLLVM<'a> {
 
     // misc utilities for generating unique names
     // for simpicity, they all share the counter
+
+    /// generate a unique label name
     fn label_name(&mut self, prefix: &str) -> String {
         self.counter += 1;
         format!("{}_{}", prefix, self.counter)
     }
 
+    /// generate a unique variable name
     fn tmp_name(&mut self) -> String {
         self.counter += 1;
         format!("%.{}", self.counter)
     }
 
+    /// get the current variable name
     fn tmp_no_inc(&self) -> String {
         format!("%.{}", self.counter)
     }
 
     // determines if we are currently build a function call
     // and gives a (mutable) reference to the corresponding Vec
+
+    /// a reference to either the LLVM main or global space
     fn loc(&mut self) -> &mut Vec<String> {
         if self.analyze.call_depth > 0 {
             &mut self.func_llvm
@@ -196,17 +215,19 @@ impl<'a> CodegenLLVM<'a> {
     }
 
     // utilities to use both the type and name environment at the same time
+    /// enter child environment for variable names and types
     fn enter_child(&mut self) {
         self.analyze.env.enter_child();
         self.var_names.enter_child();
     }
 
+    /// exit child environment for variable names and types
     fn exit_child_unwrap(&mut self) {
         self.analyze.env.exit_child_unwrap();
         self.var_names.exit_child_unwrap();
     }
 
-    // utility for generating binary instructions
+    /// utility for generating binary instructions
     fn binary_ops(&self, t: &Type, op: &BinaryOp) -> String {
         let s = match (t, op) {
             (Type::Int, BinaryOp::Plus) => "add",
@@ -234,6 +255,7 @@ impl<'a> CodegenLLVM<'a> {
         s.to_string()
     }
 
+    /// generate LLVM for a single statement
     fn llvm_stmt(&mut self, stmt: &'a Stmt) -> Signal {
         match stmt {
             Stmt::LoopControl { control, .. } => match control {
@@ -552,6 +574,7 @@ impl<'a> CodegenLLVM<'a> {
         }
     }
 
+    /// generate LLVM for a single expression
     fn llvm_expr(&mut self, e: &Expr) -> String {
         match e {
             Expr::Literal { value, .. } => value.llvm_value(),

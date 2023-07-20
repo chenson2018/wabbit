@@ -6,6 +6,7 @@ use crate::operators::*;
 use crate::types::{compare, equality, numeric_binary, numeric_unary, Type, WabbitType};
 use std::collections::HashMap;
 
+/// struct for interpreting Wabbit AST
 pub type Interpreter<'a> = Analyzer<'a, WabbitType>;
 
 #[derive(Debug)]
@@ -17,6 +18,7 @@ pub enum Signal {
 }
 
 impl<'a> Interpreter<'a> {
+    /// interpret an expression and confirm it is a boolean at runtime
     fn typecheck_bool(&mut self, e: &Expr, id: &usize) -> Result<bool> {
         let eval = self.evaluate(e)?;
         match eval {
@@ -27,6 +29,7 @@ impl<'a> Interpreter<'a> {
         }
     }
 
+    /// interpret all statements
     pub fn interpret(&mut self) -> Result<()> {
         for statement in self.statements {
             let _ = self.run_stmt(statement)?;
@@ -34,6 +37,7 @@ impl<'a> Interpreter<'a> {
         Ok(())
     }
 
+    /// interpret a single statement
     fn run_stmt(&mut self, stmt: &'a Stmt) -> Result<Signal> {
         match stmt {
             Stmt::FuncDef {
@@ -229,6 +233,7 @@ impl<'a> Interpreter<'a> {
         }
     }
 
+    /// interpret a single expression
     #[allow(unused_parens)]
     fn evaluate(&mut self, e: &Expr) -> Result<WabbitType> {
         match e {

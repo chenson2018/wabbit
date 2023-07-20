@@ -1,0 +1,44 @@
+name: CI
+on: [push]
+
+jobs:
+  #  test:
+  #    name: Test Suite
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - uses: dtolnay/rust-toolchain@1.61.0 
+  #      - run: cargo test 
+  #      
+  #  clippy:
+  #    name: Clippy
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - uses: dtolnay/rust-toolchain@clippy
+  #      - run: cargo clippy -- -Dclippy::all
+  #
+  #  rustfmt:
+  #    name: Rustfmt
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/checkout@v3
+  #      - uses: dtolnay/rust-toolchain@1.61.0 
+  #      - run: rustup component add rustfmt
+  #      - run: cargo fmt --all -- --check
+
+  doc:
+    name: GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: nightly-2023-03-03
+      - run: cargo doc --no-deps --document-private-items
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./target/doc
+          keep_files: true

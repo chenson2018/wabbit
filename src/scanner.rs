@@ -56,6 +56,8 @@ lazy_static! {
     };
 }
 
+/// Struct for transforming the raw character input of a Wabbit program into tokens
+
 #[derive(Debug)]
 pub struct Scanner {
     /// raw character input of a Wabbit program
@@ -70,6 +72,7 @@ pub struct Scanner {
     start: usize,
 }
 
+/// given a scanner, can copy the range it was currently processing
 impl RangeReporter for Scanner {
     fn extract_tokens<'a>(&'a self, _output: &mut Vec<&'a Token>) {}
 
@@ -79,7 +82,7 @@ impl RangeReporter for Scanner {
 }
 
 impl Scanner {
-    /// Get a reference to a scanner's tokens
+    /// get a reference to a scanner's tokens
     pub fn borrow_tokens(&self) -> &Vec<Token> {
         &self.tokens
     }
@@ -176,6 +179,8 @@ impl Scanner {
         };
     }
 
+    /// scan a numeric literal (integer or float)
+
     fn number(&mut self, mut found_decimal: bool) -> Result<()> {
         while self.peek().is_ascii_digit() {
             self.advance();
@@ -205,6 +210,8 @@ impl Scanner {
 
         Ok(())
     }
+
+    /// scan a single token
 
     fn scan_token(&mut self) -> Results<()> {
         let mut errors = Vec::new();
@@ -299,6 +306,8 @@ impl Scanner {
             Ok(())
         }
     }
+
+    /// scan all tokens
 
     pub fn scan(&mut self) -> Results<()> {
         let mut errors = Vec::new();

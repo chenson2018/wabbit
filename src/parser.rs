@@ -5,12 +5,19 @@ use crate::tokens::{Token, TokenType};
 use crate::types::Type;
 use std::collections::HashMap;
 
+/// Struct for transforming tokens into a vector of statements (AST)
+
 #[derive(Debug)]
 pub struct Parser<'a> {
+    /// index of `self.tokens` that the parser is examining
     current: usize,
+    /// tokens, borrowed from a scanner
     tokens: &'a Vec<Token>,
+    /// resulting statements after parsing
     statements: Vec<Stmt>,
+    /// current expression/statement index
     id: usize,
+    /// a map from statement/expression indices to source indices
     ranges: HashMap<usize, (usize, usize)>,
 }
 
@@ -21,6 +28,7 @@ impl<'a> From<&'a Scanner> for Parser<'a> {
     }
 }
 
+/// given a parser, can copy the range of the current token
 impl RangeReporter for Parser<'_> {
     fn extract_tokens<'a>(&'a self, _output: &mut Vec<&'a Token>) {}
 
@@ -40,6 +48,7 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// given a pair of tokens/expressions/statements, record the furthest left and right source indices
     fn assign_id<L, R>(&mut self, left: L, right: R) -> usize
     where
         L: RangeReporter,
@@ -50,20 +59,24 @@ impl<'a> Parser<'a> {
         self.id
     }
 
+    /// record the source range of a single token
     fn assign_id_single(&mut self, token: &Token) -> usize {
         self.id += 1;
         self.ranges.insert(self.id, token.extract_range());
         self.id
     }
 
+    /// return a reference to `self.statements`
     pub fn borrow_statements(&self) -> &Vec<Stmt> {
         &self.statements
     }
 
+    /// return a reference to `self.ranges`
     pub fn borrow_ranges(&self) -> &HashMap<usize, (usize, usize)> {
         &self.ranges
     }
 
+    /// parse all statements
     pub fn parse(&mut self) -> Result<()> {
         while !self.is_end() {
             let stmt = self.statement()?;
@@ -72,6 +85,9 @@ impl<'a> Parser<'a> {
         Ok(())
     }
 
+    /// parse a single statement
+    ///
+    /// This is the entry point for the mutually recursive private functions found below.
     fn statement(&mut self) -> Result<Stmt> {
         match self.advance().token {
             TokenType::LeftBrace => self.block(),
@@ -91,7 +107,109 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // These functions are all the different kinds of statements
+    /// return the current token without advancing the parser
+    fn peek(&self) -> Token {
+        self.tokens[self.current].clone()
+    }
+
+    /// return the previous token (or current if at the first token)
+    fn previous(&mut self) -> Token {
+        if self.current == 0 {
+            self.peek()
+        } else {
+            self.tokens[self.current - 1].clone()
+        }
+    }
+
+    /// check if all statements have been parsed
+    fn is_end(&mut self) -> bool {
+        self.peek().token == TokenType::Eof
+    }
+
+    /// return the current token and advance the parser one token
+    fn advance(&mut self) -> Token {
+        if !self.is_end() {
+            self.current += 1;
+        }
+        self.previous()
+    }
+
+    /// check if the current token matches
+    fn check(&mut self, t: TokenType) -> bool {
+        if self.is_end() {
+            return false;
+        }
+        self.peek().token == t
+    }
+
+    /// check if any token is a match, and if so advance
+    fn match_any<T>(&mut self, types: T) -> bool
+    where
+        T: IntoIterator<Item = TokenType>,
+    {
+        for t in types {
+            if self.check(t) {
+                self.advance();
+                return true;
+            }
+        }
+        false
+    }
+
+    /// advance past and return a specific token, or return an error
+    fn expect(&mut self, c: char) -> Result<Token> {
+        let tt = match c {
+            '=' => TokenType::Assign,
+            '{' => TokenType::LeftBrace,
+            '}' => TokenType::RightBrace,
+            '(' => TokenType::LeftParen,
+            ')' => TokenType::RightParen,
+            ';' => TokenType::Semicolon,
+            _ => return msg!(Msg::InternalErr, self, "Unexpected char input to expect"),
+        };
+        if self.check(tt) {
+            Ok(self.advance())
+        } else {
+            msg!(Msg::ParserExpect, self, c)
+        }
+    }
+
+    /// advance past and return a name, or return an error
+    fn get_name(&mut self) -> Result<Token> {
+        if self.match_any([TokenType::Name]) {
+            let var_name = self.previous();
+            Ok(var_name)
+        } else {
+            msg!(Msg::ExpectVarName, self)
+        }
+    }
+
+    /// advance past and return a type, or return an error
+    fn get_type(&mut self) -> Result<(Token, Type)> {
+        if self.match_any([
+            TokenType::IntegerType,
+            TokenType::FloatType,
+            TokenType::CharType,
+            TokenType::BoolType,
+        ]) {
+            let dtype = match self.previous().token {
+                TokenType::IntegerType => Type::Int,
+                TokenType::FloatType => Type::Float,
+                TokenType::CharType => Type::Char,
+                TokenType::BoolType => Type::Bool,
+                _ => {
+                    return msg!(
+                        Msg::InternalErr,
+                        self,
+                        "Parser attempted to consruct a type from a non-type token"
+                    )
+                }
+            };
+            Ok((self.previous(), dtype))
+        } else {
+            msg!(Msg::ExpectTypeName, self)
+        }
+    }
 
     fn block(&mut self) -> Result<Stmt> {
         let mut statements: Vec<Stmt> = Vec::new();
@@ -479,104 +597,6 @@ impl<'a> Parser<'a> {
             Ok(Expr::Grouping { e, id })
         } else {
             msg!(Msg::ExpectExpr, self)
-        }
-    }
-
-    // These are all utilities for checking the previous/current token
-
-    fn peek(&self) -> Token {
-        self.tokens[self.current].clone()
-    }
-
-    fn previous(&mut self) -> Token {
-        if self.current == 0 {
-            self.peek()
-        } else {
-            self.tokens[self.current - 1].clone()
-        }
-    }
-
-    fn is_end(&mut self) -> bool {
-        self.peek().token == TokenType::Eof
-    }
-
-    fn advance(&mut self) -> Token {
-        if !self.is_end() {
-            self.current += 1;
-        }
-        self.previous()
-    }
-
-    fn check(&mut self, t: TokenType) -> bool {
-        if self.is_end() {
-            return false;
-        }
-        self.peek().token == t
-    }
-
-    fn match_any<T>(&mut self, types: T) -> bool
-    where
-        T: IntoIterator<Item = TokenType>,
-    {
-        for t in types {
-            if self.check(t) {
-                self.advance();
-                return true;
-            }
-        }
-        false
-    }
-
-    fn expect(&mut self, c: char) -> Result<Token> {
-        let tt = match c {
-            '=' => TokenType::Assign,
-            '{' => TokenType::LeftBrace,
-            '}' => TokenType::RightBrace,
-            '(' => TokenType::LeftParen,
-            ')' => TokenType::RightParen,
-            ';' => TokenType::Semicolon,
-            _ => return msg!(Msg::InternalErr, self, "Unexpected char input to expect"),
-        };
-        //self.consume(tt, format!("Expected {}", c))
-        if self.check(tt) {
-            Ok(self.advance())
-        } else {
-            msg!(Msg::ParserExpect, self, c)
-        }
-    }
-
-    fn get_name(&mut self) -> Result<Token> {
-        if self.match_any([TokenType::Name]) {
-            let var_name = self.previous();
-            Ok(var_name)
-        } else {
-            msg!(Msg::ExpectVarName, self)
-        }
-    }
-
-    fn get_type(&mut self) -> Result<(Token, Type)> {
-        if self.match_any([
-            TokenType::IntegerType,
-            TokenType::FloatType,
-            TokenType::CharType,
-            TokenType::BoolType,
-        ]) {
-            let dtype = match self.previous().token {
-                TokenType::IntegerType => Type::Int,
-                TokenType::FloatType => Type::Float,
-                TokenType::CharType => Type::Char,
-                TokenType::BoolType => Type::Bool,
-                _ => {
-                    return msg!(
-                        Msg::InternalErr,
-                        self,
-                        "Parser attempted to consruct a type from a non-type token"
-                    )
-                }
-            };
-            Ok((self.previous(), dtype))
-        } else {
-            msg!(Msg::ExpectTypeName, self)
         }
     }
 }

@@ -67,6 +67,7 @@ pub struct Token {
     pub range: (usize, usize),
 }
 
+/// given a reference to a token, can copy its range
 impl RangeReporter for &Token {
     fn extract_tokens<'a>(&'a self, _output: &mut Vec<&'a Token>) {}
 

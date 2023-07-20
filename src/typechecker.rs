@@ -6,10 +6,12 @@ use crate::operators::*;
 use crate::types::Type;
 use std::collections::HashMap;
 
+/// struct for typechecking Wabbit AST
 pub type Typechecker<'a> = Analyzer<'a, Type>;
 
 #[allow(clippy::new_without_default)]
 impl<'a> Typechecker<'a> {
+    /// typecheck all statements
     pub fn typecheck(&mut self) -> Result<()> {
         for statement in self.statements {
             let _ = self.typecheck_stmt(statement)?;
@@ -19,6 +21,7 @@ impl<'a> Typechecker<'a> {
 }
 
 impl<'a> Analyzer<'a, Type> {
+    /// typecheck a single statement
     pub(crate) fn typecheck_stmt(&mut self, stmt: &'a Stmt) -> Result<Option<Type>> {
         match stmt {
             Stmt::Assign { name, value, id } => {
@@ -294,6 +297,7 @@ impl<'a> Analyzer<'a, Type> {
         }
     }
 
+    /// typecheck a single expression
     pub(crate) fn expr_type(&mut self, e: &Expr) -> Result<Type> {
         match e {
             Expr::Call {
