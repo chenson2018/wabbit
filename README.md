@@ -4,3 +4,4 @@ Note: no materials from the course are present in this repo, except for a few ge
 
 This crate provides a Wabbit interpreter, a typechecker, a compiler that uses LLVM IR, and an export of the interpreter to WebAssembly.
 
+Here is a link to more detailed documentation: https://chenson2018.github.io/wabbit/wabbit/
