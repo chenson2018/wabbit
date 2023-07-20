@@ -66,7 +66,7 @@
 </pre><pre class="rust"><code><span class="doccomment">//! This is my implementation of Wabbit, written as part of David Beazley&#39;s excellent class on compilers.
 //!
 //! This crate provides a Wabbit interpreter, a typechecker, a compiler that uses LLVM IR,
-//! and an export of the interpreter to WebAssembly.
+//! and an export of the interpreter to `WebAssembly`.
 //!
 //! The below re-exports are roughly in the order that source code is processed (branching
 //! depending on if you choose to interpret or compile).
@@ -104,7 +104,7 @@
 </span><span class="kw">mod </span>tokens;
 <span class="doccomment">/// Wabbit types and values
 </span><span class="kw">mod </span>types;
-<span class="doccomment">/// a WebAssembly interpreter
+<span class="doccomment">/// a `WebAssembly` interpreter
 </span><span class="kw">mod </span>wasm_interpreter;
 
 <span class="comment">// re-exporting for nice docs

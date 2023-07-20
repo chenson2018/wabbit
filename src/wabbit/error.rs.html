@@ -409,7 +409,7 @@
 ///
 /// the one exception to this is `Msg::InternalErr`, which reports a failure of the crate itself
 ///
-/// see [Msg::msg] for the messages presented to the user
+/// see [`Msg::msg`] for the messages presented to the user
 
 </span><span class="kw">pub enum </span>Msg {
     <span class="comment">// Scanner
@@ -517,7 +517,7 @@
     }};
 }
 
-<span class="doccomment">/// convenience macro for construction of a WabbitError
+<span class="doccomment">/// convenience macro for construction of a `WabbitError`
 </span><span class="macro">macro_rules! </span>err {
     (<span class="macro-nonterminal">$code</span>: expr, <span class="macro-nonterminal">$e</span>: expr $(, <span class="macro-nonterminal">$args</span>:expr)<span class="kw-2">*</span>) =&gt; {{
         <span class="kw">let </span>args: <span class="kw-2">&amp;</span>[String] = <span class="kw-2">&amp;</span>[ $(<span class="macro-nonterminal">$args</span>.to_string()),* ];
