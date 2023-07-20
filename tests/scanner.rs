@@ -18,7 +18,7 @@ mod test {
         let mut scanner = Scanner::new(source);
         if let Err(errs) = scanner.scan() {
             let colored_err = red(expected_error.msg());
-            assert_eq!(errs[0].label, colored_err)
+            assert_eq!(errs[0].label, colored_err);
         } else {
             panic!()
         }
@@ -34,7 +34,7 @@ mod test {
             match errs.as_slice() {
                 [err] => {
                     let colored_err = red(&msg);
-                    assert_eq!(err.label, colored_err)
+                    assert_eq!(err.label, colored_err);
                 }
                 _ => panic!(),
             }
@@ -45,22 +45,22 @@ mod test {
 
     #[test]
     fn invalid_number() {
-        expect_err_args("10.a;\n", Msg::InvalidNumber, &["."])
+        expect_err_args("10.a;\n", Msg::InvalidNumber, &["."]);
     }
 
     #[test]
     fn invalid_char() {
-        expect_err("'abc';\n", Msg::InvalidChar)
+        expect_err("'abc';\n", Msg::InvalidChar);
     }
 
     #[test]
     fn double_token() {
-        expect_err_args("true | false;\n", Msg::DoubleToken, &["|", "|"])
+        expect_err_args("true | false;\n", Msg::DoubleToken, &["|", "|"]);
     }
 
     #[test]
     fn unexpected_char() {
-        expect_err_args("@;\n", Msg::UnexpectedChar, &["@"])
+        expect_err_args("@;\n", Msg::UnexpectedChar, &["@"]);
     }
 
     // Just checking that it doesn't throw an error, not if it is correct
@@ -71,7 +71,7 @@ mod test {
         for file in paths {
             let source = std::fs::read_to_string(file.unwrap().path()).unwrap();
             let mut scanner = Scanner::new(&source);
-            scanner.scan().unwrap()
+            scanner.scan().unwrap();
         }
     }
 }

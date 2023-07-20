@@ -146,6 +146,7 @@ where
 ///
 /// see [`Msg::msg`] for the messages presented to the user
 
+#[derive(Clone, Copy)]
 pub enum Msg {
     // Scanner
     InvalidNumber,

@@ -21,7 +21,7 @@ mod test {
         let mut parser = Parser::from(&scanner);
         if let Err(e) = parser.parse() {
             let colored_err = red(expected_error.msg());
-            assert_eq!(e.label, colored_err)
+            assert_eq!(e.label, colored_err);
         } else {
             panic!()
         }
@@ -37,7 +37,7 @@ mod test {
         let mut parser = Parser::from(&scanner);
         if let Err(e) = parser.parse() {
             let colored_err = red(&msg);
-            assert_eq!(e.label, colored_err)
+            assert_eq!(e.label, colored_err);
         } else {
             panic!()
         }
@@ -73,7 +73,7 @@ mod test {
     // This one is very general...
     #[test]
     fn parser_expect() {
-        expect_err_args("print 1\n", Msg::ParserExpect, &[";"])
+        expect_err_args("print 1\n", Msg::ParserExpect, &[";"]);
     }
 
     // Just checking that it doesn't throw an error, not if it is correct

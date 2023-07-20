@@ -24,7 +24,7 @@ mod test {
         let mut typechecker = Typechecker::from(&parser);
         if let Err(e) = typechecker.typecheck() {
             let colored_err = red(expected_error.msg());
-            assert_eq!(e.label, colored_err)
+            assert_eq!(e.label, colored_err);
         } else {
             panic!()
         }
@@ -42,7 +42,7 @@ mod test {
         let mut typechecker = Typechecker::from(&parser);
         if let Err(e) = typechecker.typecheck() {
             let colored_err = red(&msg);
-            assert_eq!(e.label, colored_err)
+            assert_eq!(e.label, colored_err);
         } else {
             panic!()
         }
@@ -57,7 +57,7 @@ mod test {
                 }
             }        
             ";
-        expect_err(source, Msg::AltBranch)
+        expect_err(source, Msg::AltBranch);
     }
 
     #[test]
@@ -71,7 +71,7 @@ mod test {
                 }
             }        
             ";
-        expect_err(source, Msg::AltBranch)
+        expect_err(source, Msg::AltBranch);
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod test {
                 return x;
             }
             ";
-        expect_err(source, Msg::DupArgs)
+        expect_err(source, Msg::DupArgs);
     }
 
     #[test]
@@ -92,7 +92,7 @@ mod test {
                     return 0;
                 }
             };";
-        expect_err(source, Msg::FuncDefScope)
+        expect_err(source, Msg::FuncDefScope);
     }
 
     #[test]
@@ -101,13 +101,13 @@ mod test {
             if true {
                 const pi = 3.14;
             };";
-        expect_err(source, Msg::ConstScope)
+        expect_err(source, Msg::ConstScope);
     }
 
     #[test]
     fn return_scope() {
         let source = "return 0;\n";
-        expect_err(source, Msg::ReturnScope)
+        expect_err(source, Msg::ReturnScope);
     }
 
     #[test]
@@ -122,7 +122,7 @@ mod test {
             var x int = 1;
             x = 1.0;
         ";
-        expect_err_args(source, Msg::AssignRetype, &["x", "int", "float"])
+        expect_err_args(source, Msg::AssignRetype, &["x", "int", "float"]);
     }
 
     #[test]
@@ -167,7 +167,7 @@ mod test {
 
             run(1);
             ";
-        expect_err_args(source, Msg::FuncAirty, &["run", "0", "1"])
+        expect_err_args(source, Msg::FuncAirty, &["run", "0", "1"]);
     }
 
     #[test]
@@ -179,7 +179,7 @@ mod test {
 
             self(1.0);
             ";
-        expect_err_args(source, Msg::ParamType, &["x", "int", "float"])
+        expect_err_args(source, Msg::ParamType, &["x", "int", "float"]);
     }
 
     #[test]
@@ -189,7 +189,7 @@ mod test {
                 return float(x);
             }
             ";
-        expect_err_args(source, Msg::ReturnType, &["self", "int", "float"])
+        expect_err_args(source, Msg::ReturnType, &["self", "int", "float"]);
     }
 
     #[test]
@@ -201,13 +201,13 @@ mod test {
                 print '\n';
             }
             ";
-        expect_err(source, Msg::NoReturn)
+        expect_err(source, Msg::NoReturn);
     }
 
     #[test]
     fn type_eval() {
         let source = "print int;\n";
-        expect_err(source, Msg::TypeEval)
+        expect_err(source, Msg::TypeEval);
     }
 
     #[test]
@@ -216,7 +216,7 @@ mod test {
             var x int;
             print x;
             ";
-        expect_err_args(source, Msg::AccessUninit, &["x"])
+        expect_err_args(source, Msg::AccessUninit, &["x"]);
     }
 
     #[test]
@@ -226,13 +226,13 @@ mod test {
                 print 1;
             }
             ";
-        expect_err_args(source, Msg::ExpectType, &["bool"])
+        expect_err_args(source, Msg::ExpectType, &["bool"]);
     }
 
     #[test]
     fn type_match() {
         let source = "1 + 1.0;\n";
-        expect_err(source, Msg::TypeMatch)
+        expect_err(source, Msg::TypeMatch);
     }
 
     #[test]
@@ -246,7 +246,7 @@ mod test {
                 }
             }
             ";
-        expect_err(source, Msg::ReturnDiverge)
+        expect_err(source, Msg::ReturnDiverge);
     }
 
     #[test]
@@ -255,7 +255,7 @@ mod test {
             var x int = 1;
             var x int = 2;
         ";
-        expect_err_args(source, Msg::RedeclareVar, &["x"])
+        expect_err_args(source, Msg::RedeclareVar, &["x"]);
     }
 
     #[test]
@@ -264,7 +264,7 @@ mod test {
             const x int = 1;
             const x int = 2;
         ";
-        expect_err_args(source, Msg::RedeclareConst, &["x"])
+        expect_err_args(source, Msg::RedeclareConst, &["x"]);
     }
 
     #[test]
@@ -278,7 +278,7 @@ mod test {
                 return 0; 
             }
         ";
-        expect_err_args(source, Msg::RedeclareFunc, &["x"])
+        expect_err_args(source, Msg::RedeclareFunc, &["x"]);
     }
 
     #[test]

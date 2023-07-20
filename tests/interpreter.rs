@@ -5,6 +5,7 @@ mod test {
     use wabbit::scanner::Scanner;
     use wabbit::WabbitType;
 
+    #[allow(clippy::needless_pass_by_value)]
     fn expect_io(path: &str, expected: Vec<WabbitType>) {
         let source = std::fs::read_to_string(path).unwrap();
         let mut scanner = Scanner::new(&source);
@@ -13,13 +14,13 @@ mod test {
         parser.parse().unwrap();
         let mut interpreter = Interpreter::from(&parser);
         interpreter.interpret().unwrap();
-        assert_eq!(interpreter.output, expected)
+        assert_eq!(interpreter.output, expected);
     }
 
     #[test]
     fn _00_intliteral() {
         let expected = vec![WabbitType::from(42)];
-        expect_io("./program_examples/00_intliteral.wb", expected)
+        expect_io("./program_examples/00_intliteral.wb", expected);
     }
 
     #[test]
@@ -30,13 +31,13 @@ mod test {
             WabbitType::from(6),
             WabbitType::from(2),
         ];
-        expect_io("./program_examples/01_intbinop.wb", expected)
+        expect_io("./program_examples/01_intbinop.wb", expected);
     }
 
     #[test]
     fn _02_intunaryop() {
         let expected = vec![WabbitType::from(-5), WabbitType::from(5)];
-        expect_io("./program_examples/02_intunaryop.wb", expected)
+        expect_io("./program_examples/02_intunaryop.wb", expected);
     }
 
     #[test]
@@ -52,13 +53,13 @@ mod test {
             WabbitType::from(1),
             WabbitType::from(13),
         ];
-        expect_io("./program_examples/03_intvar.wb", expected)
+        expect_io("./program_examples/03_intvar.wb", expected);
     }
 
     #[test]
     fn _04_floatliteral() {
         let expected = vec![WabbitType::from(4.2)];
-        expect_io("./program_examples/04_floatliteral.wb", expected)
+        expect_io("./program_examples/04_floatliteral.wb", expected);
     }
 
     #[test]
@@ -69,13 +70,13 @@ mod test {
             WabbitType::from(6.0),
             WabbitType::from(1.5),
         ];
-        expect_io("./program_examples/05_floatbinop.wb", expected)
+        expect_io("./program_examples/05_floatbinop.wb", expected);
     }
 
     #[test]
     fn _06_floatunaryop() {
         let expected = vec![WabbitType::from(-5.0), WabbitType::from(5.0)];
-        expect_io("./program_examples/06_floatunaryop.wb", expected)
+        expect_io("./program_examples/06_floatunaryop.wb", expected);
     }
 
     #[test]
@@ -90,7 +91,7 @@ mod test {
             WabbitType::from(-1.0),
             WabbitType::from(13.0),
         ];
-        expect_io("./program_examples/07_floatvar.wb", expected)
+        expect_io("./program_examples/07_floatvar.wb", expected);
     }
 
     #[test]
@@ -103,7 +104,7 @@ mod test {
             WabbitType::from(true),
             WabbitType::from(true),
         ];
-        expect_io("./program_examples/08_intrel.wb", expected)
+        expect_io("./program_examples/08_intrel.wb", expected);
     }
 
     #[test]
@@ -116,7 +117,7 @@ mod test {
             WabbitType::from(true),
             WabbitType::from(true),
         ];
-        expect_io("./program_examples/09_floatrel.wb", expected)
+        expect_io("./program_examples/09_floatrel.wb", expected);
     }
 
     #[test]
@@ -130,13 +131,13 @@ mod test {
             WabbitType::from(true),
             WabbitType::from(false),
         ];
-        expect_io("./program_examples/10_bool.wb", expected)
+        expect_io("./program_examples/10_bool.wb", expected);
     }
 
     #[test]
     fn _11_cond() {
         let expected = vec![WabbitType::from(3)];
-        expect_io("./program_examples/11_cond.wb", expected)
+        expect_io("./program_examples/11_cond.wb", expected);
     }
 
     #[test]
@@ -153,7 +154,7 @@ mod test {
             WabbitType::from(362_880),
             WabbitType::from(3_628_800),
         ];
-        expect_io("./program_examples/12_loop.wb", expected)
+        expect_io("./program_examples/12_loop.wb", expected);
     }
 
     #[test]
@@ -172,7 +173,7 @@ mod test {
             WabbitType::from('d'),
             WabbitType::from('\n'),
         ];
-        expect_io("./program_examples/13_charliteral.wb", expected)
+        expect_io("./program_examples/13_charliteral.wb", expected);
     }
 
     #[test]
@@ -185,7 +186,7 @@ mod test {
             WabbitType::from(true),
             WabbitType::from(true),
         ];
-        expect_io("./program_examples/14_charrel.wb", expected)
+        expect_io("./program_examples/14_charrel.wb", expected);
     }
 
     #[test]
@@ -203,19 +204,19 @@ mod test {
             WabbitType::from(11),
             WabbitType::from(-1),
         ];
-        expect_io("./program_examples/16_brk.wb", expected)
+        expect_io("./program_examples/16_brk.wb", expected);
     }
 
     #[test]
     fn _17_shortcircuit() {
         let expected = vec![WabbitType::from(true), WabbitType::from(false)];
-        expect_io("./program_examples/17_shortcircuit.wb", expected)
+        expect_io("./program_examples/17_shortcircuit.wb", expected);
     }
 
     #[test]
     fn _20_square() {
         let expected = (0..10).map(|i| WabbitType::from(i * i)).collect();
-        expect_io("./program_examples/20_square.wb", expected)
+        expect_io("./program_examples/20_square.wb", expected);
     }
 
     #[test]
@@ -253,7 +254,7 @@ mod test {
             WabbitType::from(514_229),
             WabbitType::from(832_040),
         ];
-        expect_io("./program_examples/22_fib.wb", expected)
+        expect_io("./program_examples/22_fib.wb", expected);
     }
 
     // Just running this to see that there aren't var name conflicts
@@ -277,6 +278,6 @@ mod test {
             WabbitType::from('*'),
             WabbitType::from(10),
         ];
-        expect_io("./program_examples/24_conversions.wb", expected)
+        expect_io("./program_examples/24_conversions.wb", expected);
     }
 }
