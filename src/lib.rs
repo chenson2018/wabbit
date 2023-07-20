@@ -4,14 +4,13 @@
 //! and an export of the interpreter to `WebAssembly`.
 //!
 //! The below re-exports are roughly in the order that source code is processed (branching
-//! depending on if you choose to interpret or compile).
+//! on if you choose to interpret or compile).
 //!
 //! See [`wabbit_rs`](../wabbit_rs/index.html) for command-line usage
 
 #![feature(box_syntax)]
 #![feature(box_patterns)]
 #![feature(let_chains)]
-
 // roughly grouped by category
 #![allow(clippy::similar_names)]
 #![allow(clippy::module_name_repetitions)]
