@@ -1,7 +1,7 @@
 //! This is my implementation of Wabbit, written as part of David Beazley's excellent class on compilers.
 //!
 //! This crate provides a Wabbit interpreter, a typechecker, a compiler that uses LLVM IR,
-//! and an export of the interpreter to WebAssembly.
+//! and an export of the interpreter to `WebAssembly`.
 //!
 //! The below re-exports are roughly in the order that source code is processed (branching
 //! depending on if you choose to interpret or compile).
@@ -39,7 +39,7 @@ mod operators;
 mod tokens;
 /// Wabbit types and values
 mod types;
-/// a WebAssembly interpreter
+/// a `WebAssembly` interpreter
 mod wasm_interpreter;
 
 // re-exporting for nice docs

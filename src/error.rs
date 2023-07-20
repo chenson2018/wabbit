@@ -144,7 +144,7 @@ where
 ///
 /// the one exception to this is `Msg::InternalErr`, which reports a failure of the crate itself
 ///
-/// see [Msg::msg] for the messages presented to the user
+/// see [`Msg::msg`] for the messages presented to the user
 
 pub enum Msg {
     // Scanner
@@ -252,7 +252,7 @@ macro_rules! msg {
     }};
 }
 
-/// convenience macro for construction of a WabbitError
+/// convenience macro for construction of a `WabbitError`
 macro_rules! err {
     ($code: expr, $e: expr $(, $args:expr)*) => {{
         let args: &[String] = &[ $($args.to_string()),* ];
