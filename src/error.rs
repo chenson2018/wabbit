@@ -22,7 +22,7 @@ pub struct WabbitError {
 }
 
 impl WabbitError {
-    pub fn new<S>(label: S, range: (usize, usize)) -> Self
+    pub fn new<S>(label: &S, range: (usize, usize)) -> Self
     where
         S: Into<String> + std::fmt::Display,
     {
@@ -248,7 +248,7 @@ macro_rules! msg {
     ($code: expr, $e: expr $(, $args:expr)*) => {{
         let args: &[String] = &[ $($args.to_string()),* ];
         let msg = <dynfmt::SimpleCurlyFormat as dynfmt::Format>::format(&dynfmt::SimpleCurlyFormat, $code.msg(), args).expect("error formatting failed");
-        Err(crate::error::WabbitError::new(msg, $e.extract_range()))
+        Err(crate::error::WabbitError::new(&msg, $e.extract_range()))
     }};
 }
 
@@ -257,7 +257,7 @@ macro_rules! err {
     ($code: expr, $e: expr $(, $args:expr)*) => {{
         let args: &[String] = &[ $($args.to_string()),* ];
         let msg = <dynfmt::SimpleCurlyFormat as dynfmt::Format>::format(&dynfmt::SimpleCurlyFormat, $code.msg(), args).expect("error formatting failed");
-        crate::error::WabbitError::new(msg, $e.extract_range())
+        crate::error::WabbitError::new(&msg, $e.extract_range())
     }};
 }
 
